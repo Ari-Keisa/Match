@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Середнє арифметичне - Інтерактивна демонстрація</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 2.2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .chart-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            margin: 25px 0;
+        }
+
+        .chart {
+            width: 100%;
+            height: 300px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border: 3px solid #34495e;
+            position: relative;
+            display: flex;
+            align-items: end;
+            justify-content: space-around;
+            gap: 10px;
+        }
+
+        .bar {
+            width: 50px;
+            background: linear-gradient(0deg, #3498db, #2980b9);
+            border-radius: 8px 8px 0 0;
+            transition: all 1.5s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .bar:hover {
+            opacity: 0.8;
+        }
+
+        .bar-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .average-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #e74c3c;
+            transition: all 1.5s ease;
+            z-index: 10;
+        }
+
+        .average-line::after {
+            content: 'Середнє';
+            position: absolute;
+            right: -60px;
+            top: -8px;
+            background: #e74c3c;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-start {
+            background: linear-gradient(45deg, #27ae60, #229954);
+            color: white;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-reset {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .btn-reset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .btn-custom {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .input-section {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        input {
+            padding: 10px 15px;
+            border: 2px solid #bdc3c7;
+            border-radius: 10px;
+            font-size: 1em;
+            width: 80px;
+            text-align: center;
+        }
+
+        .explanation {
+            margin-top: 25px;
+            padding: 20px;
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 15px;
+            text-align: left;
+        }
+
+        .explanation h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .animation {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .chart {
+                height: 250px;
+            }
+            
+            .bar {
+                width: 30px;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Середнє арифметичне</h1>
+        <p class="subtitle">Спостерігай, як різні значення зрівнюються до середнього!</p>
+        
+        <div class="chart-container">
+            <div class="chart" id="chart">
+                <!-- Стовпчики будуть додані через JavaScript -->
+                <div class="average-line" id="averageLine"></div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="sum">0</div>
+                    <div class="stat-label">Сума</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="count">0</div>
+                    <div class="stat-label">Кількість</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="average">0</div>
+                    <div class="stat-label">Середнє</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn-start" onclick="startAnimation()">🎬 Почати анімацію</button>
+            <button class="btn-reset" onclick="resetChart()">🔄 Скинути</button>
+            <button class="btn-custom" onclick="toggleInput()">📝 Ввести свої числа</button>
+        </div>
+
+        <div class="input-section" id="inputSection" style="display: none;">
+            <h3>Введіть свої числа (через кому):</h3>
+            <div class="input-group">
+                <input type="text" id="numberInput" placeholder="10, 20, 30, 40">
+                <button class="btn-start" onclick="useCustomNumbers()">Застосувати</button>
+            </div>
+        </div>
+
+        <div class="explanation">
+            <h3>💡 Пояснення:</h3>
+            <p><strong>Середнє арифметичне</strong> - це сума всіх чисел, поділена на їх кількість.</p>
+            <p><strong>Формула:</strong> Середнє = (Число₁ + Число₂ + ... + Числоₙ) ÷ n</p>
+            <p>Під час анімації стовпчики "віддають" частину своєї висоти іншим, поки всі не стануть однаковими - рівними середньому значенню!</p>
+        </div>
+    </div>
+
+    <script>
+        let values = [20, 60, 40, 80, 30, 70, 50, 90];
+        let isAnimating = false;
+        const chart = document.getElementById('chart');
+        const averageLine = document.getElementById('averageLine');
+
+        function createChart() {
+            chart.innerHTML = '';
+            // Додаємо середню лінію першою, щоб вона була під стовпчиками
+            chart.appendChild(averageLine);
+            
+            values.forEach((value, index) => {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = value + '%';
+                bar.innerHTML = `<div class="bar-value">${value}</div>`;
+                bar.dataset.originalHeight = value;
+                bar.addEventListener('click', () => editValue(index));
+                chart.appendChild(bar);
+            });
+            
+            updateStats();
+            updateAverageLine();
+        }
+
+        function updateStats() {
+            const sum = values.reduce((a, b) => a + b, 0);
+            const average = sum / values.length;
+            
+            document.getElementById('sum').textContent = sum;
+            document.getElementById('count').textContent = values.length;
+            document.getElementById('average').textContent = average.toFixed(1);
+            
+            // Анімація зміни значень
+            const elements = document.querySelectorAll('.stat-value');
+            elements.forEach(el => {
+                el.classList.add('animation');
+                setTimeout(() => el.classList.remove('animation'), 500);
+            });
+            
+            return average;
+        }
+
+        function updateAverageLine() {
+            const average = updateStats();
+            averageLine.style.bottom = average + '%';
+        }
+
+        function startAnimation() {
+            if (isAnimating) return;
+            isAnimating = true;
+            
+            const average = updateStats();
+            const bars = document.querySelectorAll('.bar');
+            const duration = 1500;
+            
+            bars.forEach(bar => {
+                const originalHeight = parseFloat(bar.dataset.originalHeight);
+                bar.style.transition = `all ${duration}ms ease`;
+                bar.style.height = average + '%';
+                
+                // Оновлюємо значення на стовпчику
+                setTimeout(() => {
+                    bar.querySelector('.bar-value').textContent = average.toFixed(1);
+                }, duration / 2);
+            });
+            
+            setTimeout(() => {
+                isAnimating = false;
+            }, duration);
+        }
+
+        function resetChart() {
+            const bars = document.querySelectorAll('.bar');
+            
+            bars.forEach((bar, index) => {
+                const originalHeight = parseFloat(bar.dataset.originalHeight);
+                bar.style.transition = 'all 800ms ease';
+                bar.style.height = originalHeight + '%';
+                bar.querySelector('.bar-value').textContent = originalHeight;
+            });
+            
+            setTimeout(updateAverageLine, 800);
+        }
+
+        function toggleInput() {
+            const inputSection = document.getElementById('inputSection');
+            inputSection.style.display = inputSection.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function useCustomNumbers() {
+            const input = document.getElementById('numberInput').value;
+            const newValues = input.split(',')
+                .map(num => parseFloat(num.trim()))
+                .filter(num => !isNaN(num) && num >= 0 && num <= 100);
+            
+            if (newValues.length > 0) {
+                values = newValues;
+                createChart();
+            } else {
+                alert('Будь ласка, введіть коректні числа від 0 до 100');
+            }
+        }
+
+        function editValue(index) {
+            if (isAnimating) return;
+            
+            const newValue = prompt('Введіть нове значення (0-100):', values[index]);
+            const numValue = parseFloat(newValue);
+            
+            if (!isNaN(numValue) && numValue >= 0 && numValue <= 100) {
+                values[index] = numValue;
+                createChart();
+            }
+        }
+
+        // Ініціалізація при завантаженні
+        document.addEventListener('DOMContentLoaded', function() {
+            createChart();
+        });
+    </script>
+</body>
+</html>
