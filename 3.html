@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тренажер дробів з перевіркою</title>
+    <title>Тренажер відсотків через дроби</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,7 +12,7 @@
             text-align: center;
         }
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
             background: white;
             padding: 20px;
@@ -23,32 +23,16 @@
             color: #2c5aa0;
         }
         .workspace {
-            width: 400px;
-            height: 300px;
+            width: 600px;
+            height: 450px;
             border: 3px dashed #2c5aa0;
             border-radius: 15px;
             margin: 20px auto;
             background: #f9f9f9;
             position: relative;
-            overflow: hidden; /* Щоб частини не вилітали */
-        }
-        .shape {
-            width: 100px;
-            height: 100px;
-            background: #4CAF50;
-            border: 2px solid #2E7D32;
-            border-radius: 10px;
-            position: absolute;
-            cursor: move;
-            left: 150px;
-            top: 100px;
+            overflow: hidden;
         }
         .piece {
-            width: 80px;
-            height: 80px;
-            background: #FF9800;
-            border: 2px solid #E65100;
-            border-radius: 8px;
             position: absolute;
             cursor: pointer;
             display: flex;
@@ -56,23 +40,26 @@
             justify-content: center;
             color: white;
             font-weight: bold;
-            font-size: 14px;
+            border: 2px solid;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
         .controls {
             margin: 20px 0;
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
         }
         button {
-            padding: 10px 20px;
+            padding: 8px 15px;
             border: none;
             border-radius: 5px;
             background: #2c5aa0;
             color: white;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
         }
         button:hover {
             background: #1e3d72;
@@ -80,6 +67,8 @@
         .check-btn {
             background: #27ae60;
             font-weight: bold;
+            padding: 10px 20px;
+            font-size: 16px;
         }
         .check-btn:hover {
             background: #219653;
@@ -90,6 +79,9 @@
             margin: 15px 0;
             display: flex;
             justify-content: space-around;
+            background: #e6f2ff;
+            padding: 15px;
+            border-radius: 10px;
         }
         .problem {
             background: #e6f2ff;
@@ -134,6 +126,26 @@
             background: #e74c3c;
             color: white;
         }
+        .instructions {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: left;
+        }
+        .fraction-examples {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        .fraction-example {
+            padding: 10px;
+            border-radius: 8px;
+            background: #e6f2ff;
+            font-weight: bold;
+        }
 
         @keyframes celebrate {
             0% { transform: scale(1); }
@@ -159,21 +171,40 @@
 </head>
 <body>
     <div class="container">
-        <h1>🧩 Тренажер дробів з перевіркою</h1>
+        <h1>🎯 Тренажер відсотків через дроби</h1>
         
         <div class="problem" id="problem">
             Натисни "Нове завдання" щоб розпочати!
+        </div>
+
+        <div class="instructions">
+            <h3>💡 Як грати:</h3>
+            <p>• <strong>Натискай кнопки</strong> щоб розрізати фігуру на частини</p>
+            <p>• <strong>Перетягуй частини</strong> мишкою</p>
+            <p>• <strong>Натискай на зайві частини</strong> щоб їх знищити</p>
+            <p>• <strong>Склади дріб</strong> який дорівнює відсотку із завдання</p>
         </div>
 
         <div class="workspace" id="workspace">
             <!-- Тут з'являтимуться фігури -->
         </div>
 
+        <div class="fraction-examples">
+            <div class="fraction-example">25% = 1/4 = 2/8 = 3/12</div>
+            <div class="fraction-example">50% = 1/2 = 2/4 = 4/8</div>
+            <div class="fraction-example">75% = 3/4 = 6/8 = 9/12</div>
+            <div class="fraction-example">20% = 1/5 = 2/10</div>
+        </div>
+
         <div class="controls">
             <button onclick="addShape()">➕ Додати фігуру</button>
-            <button onclick="divideShape(2)">🔪 Розрізати на 2</button>
-            <button onclick="divideShape(3)">🔪 Розрізати на 3</button>
-            <button onclick="divideShape(4)">🔪 Розрізати на 4</button>
+            <button onclick="divideShape(2)">🔪 На 2 (1/2)</button>
+            <button onclick="divideShape(3)">🔪 На 3 (1/3)</button>
+            <button onclick="divideShape(4)">🔪 На 4 (1/4)</button>
+            <button onclick="divideShape(5)">🔪 На 5 (1/5)</button>
+            <button onclick="divideShape(6)">🔪 На 6 (1/6)</button>
+            <button onclick="divideShape(8)">🔪 На 8 (1/8)</button>
+            <button onclick="divideShape(10)">🔪 На 10 (1/10)</button>
             <button onclick="newProblem()">🎯 Нове завдання</button>
             <button onclick="clearWorkspace()">🗑️ Очистити</button>
             <button class="check-btn" onclick="checkSolution()">✅ Перевірити!</button>
@@ -182,6 +213,7 @@
         <div class="stats">
             <div>Частин: <span id="pieceCount">0</span></div>
             <div>Дріб: <span id="fraction">0/1</span></div>
+            <div>Відсоток: <span id="percentage">0%</span></div>
             <div>Бали: <span id="score">0</span></div>
         </div>
     </div>
@@ -190,31 +222,69 @@
         let score = 0;
         let currentShape = null;
         let currentProblem = null;
-        let targetFraction = null;
+        let targetPercentage = null;
+        let currentDenominator = 1;
+
+        // Розміри та кольори для різних знаменників
+        const sizeMap = {
+            1: 120,  2: 85,   3: 70,   4: 60,
+            5: 54,   6: 49,   8: 42,   10: 38
+        };
+
+        const colorMap = {
+            1: { bg: '#4CAF50', border: '#2E7D32' },  // зелений
+            2: { bg: '#2196F3', border: '#0D47A1' },  // синій
+            3: { bg: '#FF9800', border: '#E65100' },  // оранжевий
+            4: { bg: '#F44336', border: '#B71C1C' },  // червоний
+            5: { bg: '#FFEB3B', border: '#F57F17' },  // жовтий
+            6: { bg: '#9C27B0', border: '#4A148C' },  // фіолетовий
+            8: { bg: '#009688', border: '#004D40' },  // бірюзовий
+            10: { bg: '#795548', border: '#3E2723' }  // коричневий
+        };
 
         const problems = [
-            { text: "Створи дріб 1/2 (розріж фігуру на 2 частини)", target: "1/2" },
-            { text: "Створи дріб 1/4 (розріж фігуру на 4 частини)", target: "1/4" },
-            { text: "Створи дріб 3/4 (розріж на 4 частини і залиши 3)", target: "3/4" },
-            { text: "Створи дріб 2/3 (розріж на 3 частини і залиши 2)", target: "2/3" },
-            { text: "Покажи половину (1/2)", target: "1/2" }
+            { text: "Покажи 25% дробом", percentage: 25, solutions: ["1/4", "2/8", "3/12", "5/20"] },
+            { text: "Покажи 50% дробом", percentage: 50, solutions: ["1/2", "2/4", "3/6", "4/8", "5/10"] },
+            { text: "Покажи 75% дробом", percentage: 75, solutions: ["3/4", "6/8", "9/12"] },
+            { text: "Покажи 20% дробом", percentage: 20, solutions: ["1/5", "2/10", "3/15"] },
+            { text: "Покажи 40% дробом", percentage: 40, solutions: ["2/5", "4/10", "6/15"] },
+            { text: "Покажи 60% дробом", percentage: 60, solutions: ["3/5", "6/10", "9/15"] },
+            { text: "Покажи 80% дробом", percentage: 80, solutions: ["4/5", "8/10"] },
+            { text: "Покажи 10% дробом", percentage: 10, solutions: ["1/10", "2/20"] },
+            { text: "Покажи 30% дробом", percentage: 30, solutions: ["3/10", "6/20"] },
+            { text: "Покажи 70% дробом", percentage: 70, solutions: ["7/10", "14/20"] }
         ];
+
+        function simplifyFraction(numerator, denominator) {
+            const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+            const divisor = gcd(numerator, denominator);
+            return {
+                numerator: numerator / divisor,
+                denominator: denominator / divisor
+            };
+        }
 
         function addShape() {
             const workspace = document.getElementById('workspace');
             
-            if (currentShape) {
-                currentShape.remove();
-            }
+            // Видаляємо всі існуючі частини
+            document.querySelectorAll('.piece').forEach(piece => piece.remove());
             
             const shape = document.createElement('div');
-            shape.className = 'shape';
-            shape.style.left = '150px';
-            shape.style.top = '100px';
+            shape.className = 'piece';
+            shape.style.width = sizeMap[1] + 'px';
+            shape.style.height = sizeMap[1] + 'px';
+            shape.style.left = '240px';
+            shape.style.top = '165px';
+            shape.style.background = colorMap[1].bg;
+            shape.style.borderColor = colorMap[1].border;
+            shape.textContent = '1/1';
+            shape.dataset.denominator = '1';
             
             makeDraggable(shape);
             workspace.appendChild(shape);
             currentShape = shape;
+            currentDenominator = 1;
             updateStats();
         }
 
@@ -238,11 +308,10 @@
                 pos3 = e.clientX;
                 pos4 = e.clientY;
                 
-                // Обмежуємо рух межами workspace
                 const newTop = element.offsetTop - pos2;
                 const newLeft = element.offsetLeft - pos1;
                 
-                if (newTop >= 0 && newTop <= 220 && newLeft >= 0 && newLeft <= 320) {
+                if (newTop >= 0 && newTop <= 350 && newLeft >= 0 && newLeft <= 500) {
                     element.style.top = newTop + "px";
                     element.style.left = newLeft + "px";
                 }
@@ -255,34 +324,40 @@
         }
 
         function divideShape(parts) {
-            if (!currentShape) {
-                alert('Спочатку додай фігуру!');
-                return;
-            }
-            
             const workspace = document.getElementById('workspace');
-            const shapeRect = currentShape.getBoundingClientRect();
-            const workspaceRect = workspace.getBoundingClientRect();
             
-            currentShape.remove();
+            // Видаляємо всі існуючі частини
+            document.querySelectorAll('.piece').forEach(piece => piece.remove());
+            
+            const pieceSize = sizeMap[parts];
+            const colors = colorMap[parts];
             
             for (let i = 0; i < parts; i++) {
                 const piece = document.createElement('div');
                 piece.className = 'piece';
                 piece.textContent = `1/${parts}`;
                 piece.dataset.fraction = `1/${parts}`;
+                piece.dataset.denominator = parts;
+                
+                piece.style.width = pieceSize + 'px';
+                piece.style.height = pieceSize + 'px';
+                piece.style.background = colors.bg;
+                piece.style.borderColor = colors.border;
+                piece.style.fontSize = Math.max(10, pieceSize / 5) + 'px';
                 
                 const angle = (i * 2 * Math.PI) / parts;
-                const radius = 80;
-                const centerX = 200;
-                const centerY = 150;
+                const radius = 120;
+                const centerX = 300;
+                const centerY = 225;
                 
-                piece.style.left = (centerX + radius * Math.cos(angle) - 40) + 'px';
-                piece.style.top = (centerY + radius * Math.sin(angle) - 40) + 'px';
+                piece.style.left = (centerX + radius * Math.cos(angle) - pieceSize/2) + 'px';
+                piece.style.top = (centerY + radius * Math.sin(angle) - pieceSize/2) + 'px';
                 
                 makeDraggable(piece);
                 
-                piece.addEventListener('click', function() {
+                // Натискання знищує частину
+                piece.addEventListener('click', function(e) {
+                    if (e.ctrlKey) return; // Ctrl+клік не знищує
                     this.remove();
                     updateStats();
                 });
@@ -290,21 +365,19 @@
                 workspace.appendChild(piece);
             }
             
+            currentDenominator = parts;
             updateStats();
         }
 
         function newProblem() {
-            // Скидаємо попередній стан
             clearWorkspace();
             const problemElement = document.getElementById('problem');
             problemElement.className = 'problem';
             
-            // Вибираємо випадкове завдання
             currentProblem = problems[Math.floor(Math.random() * problems.length)];
             problemElement.textContent = currentProblem.text;
-            targetFraction = currentProblem.target;
+            targetPercentage = currentProblem.percentage;
             
-            // Додаємо фігуру автоматично
             addShape();
         }
 
@@ -324,21 +397,22 @@
             }
             
             const currentFraction = document.getElementById('fraction').textContent;
+            const currentPercentage = document.getElementById('percentage').textContent;
             
-            if (currentFraction === targetFraction) {
-                // Вірно!
+            // Перевіряємо чи поточний дріб є серед правильних розв'язків
+            const isCorrect = currentProblem.solutions.includes(currentFraction);
+            
+            if (isCorrect) {
                 problemElement.classList.add('correct');
-                problemElement.innerHTML = `✅ <strong>Вірно! Молодець!</strong>`;
+                problemElement.innerHTML = `✅ <strong>Вірно! ${currentFraction} = ${targetPercentage}%</strong>`;
                 score += 10;
                 updateStats();
-                showFeedback('Вірно! +10 балів!', 'success');
+                showFeedback(`Вірно! ${currentFraction} = ${targetPercentage}% +10 балів!`, 'success');
                 
-                // Автоматично нове завдання через 2 секунди
-                setTimeout(newProblem, 2000);
+                setTimeout(newProblem, 2500);
             } else {
-                // Не вірно
                 problemElement.classList.add('incorrect');
-                showFeedback('Спробуй ще!', 'error');
+                showFeedback(`Спробуй ще! ${currentFraction} ≠ ${targetPercentage}%`, 'error');
             }
         }
 
@@ -362,15 +436,22 @@
 
         function updateStats() {
             const pieces = document.querySelectorAll('.piece');
-            document.getElementById('pieceCount').textContent = pieces.length;
+            const pieceCount = pieces.length;
+            
+            document.getElementById('pieceCount').textContent = pieceCount;
             document.getElementById('score').textContent = score;
             
-            if (pieces.length > 0) {
+            if (pieceCount > 0) {
                 const firstPiece = pieces[0];
-                const denominator = firstPiece.textContent.split('/')[1];
-                document.getElementById('fraction').textContent = `${pieces.length}/${denominator}`;
+                const denominator = firstPiece.dataset.denominator;
+                document.getElementById('fraction').textContent = `${pieceCount}/${denominator}`;
+                
+                // Розраховуємо відсоток
+                const percentage = Math.round((pieceCount / denominator) * 100);
+                document.getElementById('percentage').textContent = `${percentage}%`;
             } else {
                 document.getElementById('fraction').textContent = '0/1';
+                document.getElementById('percentage').textContent = '0%';
             }
         }
 
