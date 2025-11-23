@@ -3,481 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Симуляція: Дроби та відсотки - Інтерактивний пиріг</title>
+    <title>Інтерактивний торт</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
             padding: 20px;
-            color: #333;
         }
 
         .container {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 15px;
-            font-size: 2.2em;
-        }
-
-        .subtitle {
-            color: #7f8c8d;
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 1.1em;
-        }
-
-        .workspace {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin: 30px 0;
-        }
-
-        @media (max-width: 768px) {
-            .workspace {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .pie-container {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 20px;
-            border: 3px solid #34495e;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .pie {
-            width: 300px;
-            height: 300px;
-            border-radius: 50%;
-            background: conic-gradient(
-                #3498db 0% 25%,
-                #e74c3c 25% 50%,
-                #27ae60 50% 75%,
-                #f39c12 75% 100%
-            );
-            position: relative;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        .pie:hover {
-            transform: scale(1.02);
-        }
-
-        .pie-piece {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 50% 100%);
-            transform-origin: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .pie-piece:hover {
-            filter: brightness(1.1);
-        }
-
-        .controls-panel {
-            background: #ecf0f1;
-            border-radius: 15px;
-            padding: 20px;
-        }
-
-        .control-group {
-            margin-bottom: 25px;
-        }
-
-        .control-group h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-            font-size: 1.2em;
-        }
-
-        .fraction-buttons {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
             margin-bottom: 20px;
         }
 
         button {
-            padding: 12px 15px;
+            background-color: #4CAF50;
             border: none;
-            border-radius: 10px;
-            background: #3498db;
             color: white;
+            padding: 12px 24px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 5px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
+            border-radius: 8px;
+            transition: background-color 0.3s;
         }
 
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+            background-color: #45a049;
         }
 
-        .fraction-btn {
-            background: #e74c3c;
+        #cake-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
         }
 
-        .fraction-btn:hover {
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        #cake {
+            width: 100%;
+            height: 100%;
+            position: relative;
         }
 
-        .visualization {
-            background: #2c3e50;
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
+        .piece {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 50% 100%);
+            background-color: #ffb347;
+            border: 2px solid #e68a00;
+            border-radius: 50%;
+            transform-origin: center;
+            cursor: pointer;
+            transition: opacity 0.5s;
+        }
+
+        .piece.eaten {
+            opacity: 0.3;
+        }
+
+        #fraction-display {
+            font-size: 24px;
+            margin: 15px 0;
+            color: #333;
+        }
+
+        #cut-controls {
             margin-top: 20px;
         }
 
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 20px;
+        .cut-btn {
+            background-color: #008CBA;
+            margin: 5px;
         }
 
-        .stat-item {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 1.8em;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 0.9em;
-            opacity: 0.8;
-        }
-
-        .comparison {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            margin: 20px 0;
-            padding: 15px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-        }
-
-        .comparison-item {
-            text-align: center;
-        }
-
-        .color-legend {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin: 15px 0;
-            flex-wrap: wrap;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.9em;
-        }
-
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-        }
-
-        .instructions {
-            background: #fff3cd;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border-left: 4px solid #ffc107;
-        }
-
-        .sensory-controls {
-            display: flex;
-            gap: 10px;
-            margin: 15px 0;
-            flex-wrap: wrap;
-        }
-
-        .sensory-btn {
-            background: #9b59b6;
-            font-size: 0.9em;
-            padding: 8px 12px;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .pulse {
-            animation: pulse 0.5s ease-in-out;
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
+    <h1>Смачний інтерактивний торт!</h1>
+    
     <div class="container">
-        <h1>🎯 Симуляція: Дроби та відсотки</h1>
-        <p class="subtitle">Перерізай пиріг, досліджуй дроби та відсотки!</p>
+        <button id="cut-myself-btn">Я сам поріжу!</button>
+        <button id="show-me-btn">Покажіть мені!</button>
+    </div>
 
-        <div class="instructions">
-            <h3>💡 Як використовувати:</h3>
-            <p>• <strong>Натискай кнопки</strong> щоб розрізати пиріг на частини</p>
-            <p>• <strong>Клікай на частини пирога</strong> щоб виділити їх</p>
-            <p>• <strong>Спостерігай</strong> як змінюються дріб та відсоток</p>
-            <p>• <strong>Експериментуй</strong> з різними комбінаціями</p>
+    <!-- Режим "Я сам поріжу!" -->
+    <div id="cut-myself-container" class="hidden">
+        <div id="cake-container">
+            <div id="cake">
+                <!-- Частинки торта будуть додані через JavaScript -->
+            </div>
         </div>
+        <div id="fraction-display">Залишилось: 12/12 (100%)</div>
+    </div>
 
-        <div class="workspace">
-            <div class="pie-container">
-                <div class="pie" id="pie">
-                    <!-- Пиріг буде створений через JavaScript -->
-                </div>
-                
-                <div class="color-legend">
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #3498db"></div>
-                        <span>1/4 (25%)</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #e74c3c"></div>
-                        <span>1/4 (25%)</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #27ae60"></div>
-                        <span>1/4 (25%)</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #f39c12"></div>
-                        <span>1/4 (25%)</span>
-                    </div>
-                </div>
+    <!-- Режим "Покажіть мені!" -->
+    <div id="show-me-container" class="hidden">
+        <div id="cake-container-2">
+            <div id="cake-2">
+                <!-- Торт для другого режиму -->
             </div>
-            
-            <div class="controls-panel">
-                <div class="control-group">
-                    <h3>🔪 Розрізати пиріг на:</h3>
-                    <div class="fraction-buttons">
-                        <button class="fraction-btn" onclick="dividePie(2)">2 частини</button>
-                        <button class="fraction-btn" onclick="dividePie(3)">3 частини</button>
-                        <button class="fraction-btn" onclick="dividePie(4)">4 частини</button>
-                        <button class="fraction-btn" onclick="dividePie(6)">6 частин</button>
-                        <button class="fraction-btn" onclick="dividePie(8)">8 частин</button>
-                        <button class="fraction-btn" onclick="dividePie(10)">10 частин</button>
-                        <button class="fraction-btn" onclick="dividePie(12)">12 частин</button>
-                        <button onclick="resetPie()">🔄 Почати знову</button>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <h3>🎛️ Сенсорні налаштування:</h3>
-                    <div class="sensory-controls">
-                        <button class="sensory-btn" onclick="changeColors('high-contrast')">🎨 Високий контраст</button>
-                        <button class="sensory-btn" onclick="changeColors('pastel')">🌈 Пастельні кольори</button>
-                        <button class="sensory-btn" onclick="toggleAnimations()">⚡ Анімації</button>
-                        <button class="sensory-btn" onclick="increaseSize()">🔍 Збільшити</button>
-                    </div>
-                </div>
-
-                <div class="visualization">
-                    <h3>📊 Візуалізація:</h3>
-                    <div class="comparison">
-                        <div class="comparison-item">
-                            <div class="stat-value" id="fractionValue">0/1</div>
-                            <div class="stat-label">Дріб</div>
-                        </div>
-                        <div class="comparison-item">
-                            <div class="stat-value" id="percentageValue">0%</div>
-                            <div class="stat-label">Відсоток</div>
-                        </div>
-                        <div class="comparison-item">
-                            <div class="stat-value" id="decimalValue">0.00</div>
-                            <div class="stat-label">Десятковий дріб</div>
-                        </div>
-                    </div>
-                    
-                    <div class="stats">
-                        <div class="stat-item">
-                            <div class="stat-value" id="selectedPieces">0</div>
-                            <div class="stat-label">Виділено частин</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="totalPieces">4</div>
-                            <div class="stat-label">Всього частин</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="pieceSize">25%</div>
-                            <div class="stat-label">Розмір частини</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="angleValue">90°</div>
-                            <div class="stat-label">Кут частини</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        </div>
+        <div id="fraction-display-2">Залишилось: 12/12 (100%)</div>
+        <div id="cut-controls">
+            <p>Розрізати торт на:</p>
+            <button class="cut-btn" data-pieces="2">2 частини</button>
+            <button class="cut-btn" data-pieces="3">3 частини</button>
+            <button class="cut-btn" data-pieces="4">4 частини</button>
+            <button class="cut-btn" data-pieces="6">6 частин</button>
+            <button class="cut-btn" data-pieces="8">8 частин</button>
+            <button class="cut-btn" data-pieces="10">10 частин</button>
+            <button class="cut-btn" data-pieces="12">12 частин</button>
         </div>
     </div>
 
     <script>
-        let currentPieces = 4;
-        let selectedPieces = 0;
-        let animationsEnabled = true;
-        let pieSize = 300;
+        // Элементы DOM
+        const cutMyselfBtn = document.getElementById('cut-myself-btn');
+        const showMeBtn = document.getElementById('show-me-btn');
+        const cutMyselfContainer = document.getElementById('cut-myself-container');
+        const showMeContainer = document.getElementById('show-me-container');
+        const cake = document.getElementById('cake');
+        const cake2 = document.getElementById('cake-2');
+        const fractionDisplay = document.getElementById('fraction-display');
+        const fractionDisplay2 = document.getElementById('fraction-display-2');
+        const cutButtons = document.querySelectorAll('.cut-btn');
 
-        const colorSchemes = {
-            default: ['#3498db', '#e74c3c', '#27ae60', '#f39c12', '#9b59b6', '#1abc9c', '#d35400', '#34495e', '#7f8c8d', '#f1c40f'],
-            'high-contrast': ['#000000', '#FFFFFF', '#FF0000', '#FFFF00', '#00FF00', '#0000FF', '#FF00FF', '#00FFFF'],
-            pastel: ['#FFB6C1', '#87CEEB', '#98FB98', '#FFFACD', '#DDA0DD', '#F0E68C', '#E0FFFF', '#FFDAB9']
-        };
+        // Переменные состояния
+        let totalPieces = 12;
+        let eatenPieces = 0;
+        let currentPieces = 12;
 
-        function createPie(pieces = 4) {
-            const pie = document.getElementById('pie');
-            pie.innerHTML = '';
-            currentPieces = pieces;
-            selectedPieces = 0;
-            
-            const angle = 360 / pieces;
-            const colors = colorSchemes.default;
-            
+        // Инициализация
+        createCakePieces(cake, 12);
+        createCakePieces(cake2, 12);
+
+        // Обработчики кнопок режимов
+        cutMyselfBtn.addEventListener('click', function() {
+            cutMyselfContainer.classList.remove('hidden');
+            showMeContainer.classList.add('hidden');
+            resetCake();
+        });
+
+        showMeBtn.addEventListener('click', function() {
+            showMeContainer.classList.remove('hidden');
+            cutMyselfContainer.classList.add('hidden');
+            resetCake();
+        });
+
+        // Обработчики кнопок разрезания
+        cutButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const pieces = parseInt(this.getAttribute('data-pieces'));
+                cutCake(pieces);
+            });
+        });
+
+        // Функции
+        function createCakePieces(container, pieces) {
+            container.innerHTML = '';
             for (let i = 0; i < pieces; i++) {
                 const piece = document.createElement('div');
-                piece.className = 'pie-piece';
-                piece.style.transform = `rotate(${i * angle}deg)`;
-                piece.style.clipPath = `polygon(50% 50%, 50% 0%, ${50 + 50 * Math.cos(Math.PI/180 * angle)}% ${50 - 50 * Math.sin(Math.PI/180 * angle)}%)`;
-                piece.style.background = colors[i % colors.length];
-                piece.dataset.index = i;
-                piece.dataset.selected = 'false';
-                
+                piece.className = 'piece';
+                piece.style.transform = `rotate(${i * (360 / pieces)}deg)`;
                 piece.addEventListener('click', function() {
-                    togglePiece(this);
+                    if (!this.classList.contains('eaten')) {
+                        this.classList.add('eaten');
+                        eatenPieces++;
+                        updateFractionDisplay();
+                    }
                 });
-                
-                pie.appendChild(piece);
-            }
-            
-            updateStats();
-            updateLegend(pieces);
-        }
-
-        function togglePiece(piece) {
-            const isSelected = piece.dataset.selected === 'true';
-            piece.dataset.selected = (!isSelected).toString();
-            
-            if (!isSelected) {
-                piece.style.filter = 'brightness(1.3)';
-                piece.style.border = '2px solid white';
-                selectedPieces++;
-            } else {
-                piece.style.filter = 'brightness(1)';
-                piece.style.border = 'none';
-                selectedPieces--;
-            }
-            
-            if (animationsEnabled) {
-                piece.classList.add('pulse');
-                setTimeout(() => piece.classList.remove('pulse'), 500);
-            }
-            
-            updateStats();
-        }
-
-        function dividePie(pieces) {
-            createPie(pieces);
-        }
-
-        function resetPie() {
-            createPie(4);
-        }
-
-        function updateStats() {
-            const percentage = Math.round((selectedPieces / currentPieces) * 100);
-            const decimalValue = (selectedPieces / currentPieces).toFixed(2);
-            const piecePercentage = Math.round((1 / currentPieces) * 100);
-            const angle = 360 / currentPieces;
-            
-            document.getElementById('fractionValue').textContent = `${selectedPieces}/${currentPieces}`;
-            document.getElementById('percentageValue').textContent = `${percentage}%`;
-            document.getElementById('decimalValue').textContent = decimalValue;
-            document.getElementById('selectedPieces').textContent = selectedPieces;
-            document.getElementById('totalPieces').textContent = currentPieces;
-            document.getElementById('pieceSize').textContent = `${piecePercentage}%`;
-            document.getElementById('angleValue').textContent = `${Math.round(angle)}°`;
-        }
-
-        function updateLegend(pieces) {
-            const legend = document.querySelector('.color-legend');
-            legend.innerHTML = '';
-            
-            const piecePercentage = Math.round((1 / pieces) * 100);
-            const colors = colorSchemes.default;
-            
-            for (let i = 0; i < pieces; i++) {
-                const legendItem = document.createElement('div');
-                legendItem.className = 'legend-item';
-                legendItem.innerHTML = `
-                    <div class="legend-color" style="background: ${colors[i % colors.length]}"></div>
-                    <span>${i+1}/${pieces} (${piecePercentage}%)</span>
-                `;
-                legend.appendChild(legendItem);
+                container.appendChild(piece);
             }
         }
 
-        function changeColors(scheme) {
-            colorSchemes.default = [...colorSchemes[scheme]];
-            createPie(currentPieces);
+        function cutCake(pieces) {
+            createCakePieces(cake2, pieces);
+            currentPieces = pieces;
+            eatenPieces = 0;
+            updateFractionDisplay();
         }
 
-        function toggleAnimations() {
-            animationsEnabled = !animationsEnabled;
-            const btn = event.target;
-            btn.textContent = animationsEnabled ? '⚡ Анімації' : '🚫 Без анімацій';
+        function updateFractionDisplay() {
+            const remaining = currentPieces - eatenPieces;
+            const percentage = Math.round((remaining / currentPieces) * 100);
+            fractionDisplay.textContent = `Залишилось: ${remaining}/${currentPieces} (${percentage}%)`;
+            fractionDisplay2.textContent = `Залишилось: ${remaining}/${currentPieces} (${percentage}%)`;
         }
 
-        function increaseSize() {
-            const pie = document.getElementById('pie');
-            pieSize = pieSize === 300 ? 400 : 300;
-            pie.style.width = `${pieSize}px`;
-            pie.style.height = `${pieSize}px`;
+        function resetCake() {
+            // Сброс для первого режима
+            const pieces = cake.querySelectorAll('.piece');
+            pieces.forEach(piece => {
+                piece.classList.remove('eaten');
+            });
+            
+            // Сброс для второго режима
+            const pieces2 = cake2.querySelectorAll('.piece');
+            pieces2.forEach(piece => {
+                piece.classList.remove('eaten');
+            });
+            
+            eatenPieces = 0;
+            currentPieces = 12;
+            updateFractionDisplay();
         }
-
-        // Ініціалізація
-        window.onload = function() {
-            createPie(4);
-        };
     </script>
 </body>
 </html>
