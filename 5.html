@@ -58,7 +58,6 @@
             height: 100%;
             cursor: pointer;
             transition: opacity 0.3s;
-            transform-origin: center;
         }
 
         .piece:hover {
@@ -72,13 +71,10 @@
         .cut-line {
             position: absolute;
             background-color: red;
-            height: 2px;
-            width: 50%;
-            top: 50%;
-            left: 50%;
-            transform-origin: 0% 0%;
+            height: 3px;
             pointer-events: none;
             display: none;
+            z-index: 10;
         }
 
         .fraction-display {
@@ -171,7 +167,7 @@
         
         // Переменные состояния для каждого торта
         const cakeState = {
-            1: { pieces: 1, eaten: 0 },
+            1: { pieces: 1, eaten: 0, cuts: [] },
             2: { pieces: 1, eaten: 0 }
         };
 
@@ -194,10 +190,42 @@
         function createCakePieces(cakeId, pieces) {
             const container = document.getElementById(`cake-${cakeId}`);
             
-            // Очищаем только кусочки, но не линию разреза
+            // Очищаем только кусочки
             const piecesToRemove = container.querySelectorAll('.piece');
             piecesToRemove.forEach(piece => piece.remove());
             
+            if (cakeId === 1 && pieces === 1) {
+                // Цельный торт
+                const piece = document.createElement('div');
+                piece.className = 'piece';
+                piece.style.backgroundColor = '#ffb347';
+                piece.style.borderRadius = '50%';
+                piece.style.width = '100%';
+                piece.style.height = '100%';
+                piece.addEventListener('click', function() {
+                    eatPiece(cakeId, 0);
+                });
+                container.appendChild(piece);
+            } else if (cakeId === 1) {
+                // Для режима "Я сам поріжу!" - создаем кусочки на основе разрезов
+                createPiecesFromCuts(cakeId, container);
+            } else {
+                // Для режима "Покажіть мені!" - создаем равные сегменты
+                createEqualSegments(cakeId, container, pieces);
+            }
+            
+            cakeState[cakeId].pieces = pieces;
+            cakeState[cakeId].eaten = 0;
+            updateFractionDisplay(cakeId);
+            
+            // Для первого режима добавляем обработчики рисования линий
+            if (cakeId === 1) {
+                setupCuttingHandlers(container);
+            }
+        }
+
+        // Создание равных сегментов (для второго режима)
+        function createEqualSegments(cakeId, container, pieces) {
             const angle = 360 / pieces;
             
             for (let i = 0; i < pieces; i++) {
@@ -205,7 +233,6 @@
                 piece.className = 'piece';
                 piece.dataset.index = i;
                 
-                // Создаем клип-пат для сегмента круга
                 const startAngle = i * angle;
                 const endAngle = (i + 1) * angle;
                 
@@ -221,14 +248,33 @@
                 
                 container.appendChild(piece);
             }
+        }
+
+        // Создание кусочков на основе разрезов (для первого режима)
+        function createPiecesFromCuts(cakeId, container) {
+            // Пока просто создаем равные сегменты для демонстрации
+            const pieces = cakeState[cakeId].pieces;
+            const angle = 360 / pieces;
             
-            cakeState[cakeId].pieces = pieces;
-            cakeState[cakeId].eaten = 0;
-            updateFractionDisplay(cakeId);
-            
-            // Для первого режима добавляем обработчики рисования линий
-            if (cakeId === 1) {
-                setupCuttingHandlers(container);
+            for (let i = 0; i < pieces; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'piece';
+                piece.dataset.index = i;
+                
+                const startAngle = i * angle;
+                const endAngle = (i + 1) * angle;
+                
+                const clipPath = createClipPath(startAngle, endAngle);
+                piece.style.clipPath = clipPath;
+                piece.style.webkitClipPath = clipPath;
+                
+                piece.style.backgroundColor = getPieceColor(i, pieces);
+                
+                piece.addEventListener('click', function() {
+                    eatPiece(cakeId, i);
+                });
+                
+                container.appendChild(piece);
             }
         }
 
@@ -257,12 +303,13 @@
         // Функция "съедания" кусочка
         function eatPiece(cakeId, pieceIndex) {
             const pieces = document.querySelectorAll(`#cake-${cakeId} .piece`);
-            const piece = pieces[pieceIndex];
-            
-            if (!piece.classList.contains('eaten')) {
-                piece.classList.add('eaten');
-                cakeState[cakeId].eaten++;
-                updateFractionDisplay(cakeId);
+            if (pieces[pieceIndex]) {
+                const piece = pieces[pieceIndex];
+                if (!piece.classList.contains('eaten')) {
+                    piece.classList.add('eaten');
+                    cakeState[cakeId].eaten++;
+                    updateFractionDisplay(cakeId);
+                }
             }
         }
 
@@ -283,6 +330,9 @@
 
         // Функция сброса торта
         function resetCake(cakeId) {
+            if (cakeId === 1) {
+                cakeState[1].cuts = [];
+            }
             createCakePieces(cakeId, 1);
         }
 
@@ -290,7 +340,7 @@
         function setupCuttingHandlers(container) {
             const cutLine = document.getElementById('cut-line-1');
             let isDrawing = false;
-            let startX, startY;
+            let startX, startY, endX, endY;
 
             container.addEventListener('mousedown', startCut);
             container.addEventListener('mousemove', drawCut);
@@ -305,7 +355,6 @@
                 startX = touch.clientX - rect.left;
                 startY = touch.clientY - rect.top;
                 isDrawing = true;
-                cutLine.style.display = 'block';
             });
 
             container.addEventListener('touchmove', function(e) {
@@ -313,43 +362,46 @@
                 e.preventDefault();
                 const touch = e.touches[0];
                 const rect = container.getBoundingClientRect();
-                const currentX = touch.clientX - rect.left;
-                const currentY = touch.clientY - rect.top;
+                endX = touch.clientX - rect.left;
+                endY = touch.clientY - rect.top;
                 
-                drawCutLine(startX, startY, currentX, currentY);
+                drawCutLine(startX, startY, endX, endY);
             });
 
-            container.addEventListener('touchend', endCut);
+            container.addEventListener('touchend', function(e) {
+                if (!isDrawing) return;
+                e.preventDefault();
+                endCut();
+            });
 
             function startCut(e) {
                 const rect = container.getBoundingClientRect();
                 startX = e.clientX - rect.left;
                 startY = e.clientY - rect.top;
                 isDrawing = true;
-                cutLine.style.display = 'block';
             }
 
             function drawCut(e) {
                 if (!isDrawing) return;
                 
                 const rect = container.getBoundingClientRect();
-                const currentX = e.clientX - rect.left;
-                const currentY = e.clientY - rect.top;
+                endX = e.clientX - rect.left;
+                endY = e.clientY - rect.top;
                 
-                drawCutLine(startX, startY, currentX, currentY);
+                drawCutLine(startX, startY, endX, endY);
             }
 
             function drawCutLine(fromX, fromY, toX, toY) {
-                const centerX = container.offsetWidth / 2;
-                const centerY = container.offsetHeight / 2;
-                
-                // Вычисляем угол между центром и направлением разреза
+                // Вычисляем длину и угол линии
+                const length = Math.sqrt(Math.pow(toX - fromX, 2) + Math.pow(toY - fromY, 2));
                 const angle = Math.atan2(toY - fromY, toX - fromX) * 180 / Math.PI;
                 
-                // Обновляем позицию и угол линии
-                cutLine.style.left = '50%';
-                cutLine.style.top = '50%';
-                cutLine.style.transform = `rotate(${angle}deg)`;
+                // Позиционируем линию
+                cutLine.style.width = length + 'px';
+                cutLine.style.left = fromX + 'px';
+                cutLine.style.top = fromY + 'px';
+                cutLine.style.transform = `rotate(${angle}rad)`;
+                cutLine.style.display = 'block';
             }
 
             function endCut() {
@@ -358,9 +410,13 @@
                 isDrawing = false;
                 cutLine.style.display = 'none';
                 
-                // Создаем новый разрез - увеличиваем количество кусочков
-                const newPieces = cakeState[1].pieces + 1;
-                if (newPieces <= 12) { // Ограничим максимальное количество кусочков
+                // Сохраняем разрез и увеличиваем количество кусочков
+                if (cakeState[1].pieces < 12) {
+                    cakeState[1].cuts.push({
+                        startX, startY, endX, endY
+                    });
+                    
+                    const newPieces = cakeState[1].pieces + 1;
                     createCakePieces(1, newPieces);
                 }
             }
