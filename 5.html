@@ -46,22 +46,19 @@
             position: relative;
             width: 300px;
             height: 300px;
-            overflow: visible;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #ffb347;
+            border: 3px solid #e68a00;
         }
 
         .piece {
             position: absolute;
-            width: 300px;
-            height: 300px;
+            width: 100%;
+            height: 100%;
             cursor: pointer;
             transition: opacity 0.3s;
-            border-radius: 50%;
             transform-origin: center;
-        }
-
-        .whole-cake {
-            background: linear-gradient(45deg, #ffb347, #ffcc33);
-            border: 3px solid #e68a00;
         }
 
         .piece:hover {
@@ -76,9 +73,9 @@
             position: absolute;
             background-color: red;
             height: 3px;
-            width: 424px; /* діагональ круга */
-            top: 150px;
-            left: -62px;
+            width: 100%;
+            top: 50%;
+            left: 0;
             transform-origin: center;
             pointer-events: none;
             display: none;
@@ -220,42 +217,28 @@
                 container.appendChild(cutLine);
             }
             
-            if (pieces === 1) {
-                // Цельный торт
+            const angle = 360 / pieces;
+            
+            for (let i = 0; i < pieces; i++) {
                 const piece = document.createElement('div');
-                piece.className = 'piece whole-cake';
-                piece.dataset.index = 0;
+                piece.className = 'piece';
+                piece.dataset.index = i;
+                
+                // Создаем клип-пат для сегмента круга
+                const startAngle = i * angle;
+                const endAngle = (i + 1) * angle;
+                
+                const clipPath = createClipPath(startAngle, endAngle);
+                piece.style.clipPath = clipPath;
+                piece.style.webkitClipPath = clipPath;
+                
+                piece.style.backgroundColor = getPieceColor(i, pieces);
                 
                 piece.addEventListener('click', function() {
-                    eatPiece(cakeId, 0);
+                    eatPiece(cakeId, i);
                 });
                 
                 container.appendChild(piece);
-            } else {
-                // Разрезанный торт
-                const angle = 360 / pieces;
-                
-                for (let i = 0; i < pieces; i++) {
-                    const piece = document.createElement('div');
-                    piece.className = 'piece';
-                    piece.dataset.index = i;
-                    
-                    // Создаем клип-пат для сегмента круга
-                    const startAngle = i * angle;
-                    const endAngle = (i + 1) * angle;
-                    
-                    const clipPath = createClipPath(startAngle, endAngle);
-                    piece.style.clipPath = clipPath;
-                    piece.style.webkitClipPath = clipPath;
-                    
-                    piece.style.backgroundColor = getPieceColor(i, pieces);
-                    
-                    piece.addEventListener('click', function() {
-                        eatPiece(cakeId, i);
-                    });
-                    
-                    container.appendChild(piece);
-                }
             }
             
             if (cakeId === 1) {
@@ -342,7 +325,7 @@
             createCakePieces(cakeId, 1);
         }
 
-        // Обработчики для рисования линий разреза (перший режим)
+        // Обработчики для рисования линий разреза (первый режим)
         function setupCuttingHandlers(container) {
             const cutLine = document.getElementById('cut-line-1');
             let isDrawing = false;
