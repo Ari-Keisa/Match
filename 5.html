@@ -46,18 +46,17 @@
             position: relative;
             width: 300px;
             height: 300px;
-            border-radius: 50%;
-            overflow: hidden;
-            background: #ffb347;
-            border: 3px solid #e68a00;
+            overflow: visible;
         }
 
         .piece {
             position: absolute;
-            width: 100%;
-            height: 100%;
+            width: 300px;
+            height: 300px;
             cursor: pointer;
             transition: opacity 0.3s;
+            border-radius: 50%;
+            clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 50% 100%);
             transform-origin: center;
         }
 
@@ -73,9 +72,9 @@
             position: absolute;
             background-color: red;
             height: 3px;
-            width: 100%;
-            top: 50%;
-            left: 0;
+            width: 424px; /* діагональ круга */
+            top: 150px;
+            left: -62px;
             transform-origin: center;
             pointer-events: none;
             display: none;
@@ -224,14 +223,8 @@
                 piece.className = 'piece';
                 piece.dataset.index = i;
                 
-                // Создаем клип-пат для сегмента круга
-                const startAngle = i * angle;
-                const endAngle = (i + 1) * angle;
-                
-                const clipPath = createClipPath(startAngle, endAngle);
-                piece.style.clipPath = clipPath;
-                piece.style.webkitClipPath = clipPath;
-                
+                // Поворачиваем кусочек
+                piece.style.transform = `rotate(${i * angle}deg)`;
                 piece.style.backgroundColor = getPieceColor(i, pieces);
                 
                 piece.addEventListener('click', function() {
@@ -251,21 +244,6 @@
             }
             
             updateFractionDisplay(cakeId);
-        }
-
-        // Функция создания clip-path для сегмента круга
-        function createClipPath(startAngle, endAngle) {
-            const startRad = (startAngle - 90) * Math.PI / 180;
-            const endRad = (endAngle - 90) * Math.PI / 180;
-            
-            const x1 = 50 + 50 * Math.cos(startRad);
-            const y1 = 50 + 50 * Math.sin(startRad);
-            const x2 = 50 + 50 * Math.cos(endRad);
-            const y2 = 50 + 50 * Math.sin(endRad);
-            
-            const largeArc = endAngle - startAngle <= 180 ? 0 : 1;
-            
-            return `path('M 50 50 L ${x1} ${y1} A 50 50 0 ${largeArc} 1 ${x2} ${y2} Z')`;
         }
 
         // Функция для получения цвета кусочка
@@ -372,8 +350,8 @@
                 const y = clientY - rect.top - 150;
                 const currentAngle = Math.atan2(y, x) * 180 / Math.PI;
                 
-                // Вычисляем средний угол для линии разреза
-                const cutAngle = (startAngle + currentAngle) / 2;
+                // Вычисляем угол для линии разреза
+                const cutAngle = currentAngle;
                 cutLine.style.transform = `rotate(${cutAngle}deg)`;
             }
 
@@ -385,8 +363,8 @@
                 const y = e.clientY - rect.top - 150;
                 const currentAngle = Math.atan2(y, x) * 180 / Math.PI;
                 
-                // Вычисляем средний угол для линии разреза
-                const cutAngle = (startAngle + currentAngle) / 2;
+                // Вычисляем угол для линии разреза
+                const cutAngle = currentAngle;
                 cutLine.style.transform = `rotate(${cutAngle}deg)`;
             }
 
