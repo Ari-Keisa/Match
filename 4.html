@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Багаторівневий тренажер середнього арифметичного</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 2.2em;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .level-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .level-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .level-beginner {
+            background: linear-gradient(45deg, #27ae60, #229954);
+            color: white;
+        }
+
+        .level-intermediate {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .level-advanced {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .level-btn.active {
+            transform: scale(1.1);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .level-description {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+            font-size: 1em;
+            border-left: 4px solid #3498db;
+        }
+
+        .problem-container {
+            background: #e6f2ff;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .problem-text {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .numbers-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .number-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 1.5em;
+            font-weight: bold;
+            min-width: 60px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border: 2px solid #3498db;
+        }
+
+        .input-section {
+            margin: 25px 0;
+        }
+
+        .answer-input {
+            padding: 15px 20px;
+            font-size: 1.2em;
+            border: 2px solid #bdc3c7;
+            border-radius: 10px;
+            width: 150px;
+            text-align: center;
+            margin: 0 10px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-check {
+            background: linear-gradient(45deg, #27ae60, #229954);
+            color: white;
+        }
+
+        .btn-check:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-next {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-hint {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .btn-hint:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 25px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .feedback {
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .hint-section {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #ffc107;
+        }
+
+        .formula {
+            background: #e6f2ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .celebrate {
+            animation: celebrate 0.5s ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .level-btn {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+            
+            .number-card {
+                padding: 15px;
+                font-size: 1.2em;
+                min-width: 50px;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Багаторівневий тренажер середнього арифметичного</h1>
+        <p class="subtitle">Обирай рівень складності та вдосконалюй свої навички!</p>
+
+        <div class="level-selector">
+            <button class="level-btn level-beginner active" onclick="setLevel('beginner')">
+                🟢 Початковий
+            </button>
+            <button class="level-btn level-intermediate" onclick="setLevel('intermediate')">
+                🔵 Середній
+            </button>
+            <button class="level-btn level-advanced" onclick="setLevel('advanced')">
+                🔴 Просунутий
+            </button>
+        </div>
+
+        <div class="level-description" id="levelDescription">
+            Прості завдання з невеликою кількістю чисел та візуальними підказками
+        </div>
+
+        <div class="problem-container">
+            <div class="problem-text" id="problemText"></div>
+            
+            <div class="numbers-container" id="numbersContainer">
+                <!-- Числа будуть додані тут -->
+            </div>
+
+            <div class="formula" id="formula">
+                Середнє = (Сума чисел) ÷ (Кількість чисел)
+            </div>
+
+            <div class="input-section">
+                <label for="answerInput"><strong>Середнє арифметичне:</strong></label>
+                <input type="number" id="answerInput" class="answer-input" step="0.1">
+                <button class="btn-check" onclick="checkAnswer()">✅ Перевірити</button>
+            </div>
+        </div>
+
+        <div class="hint-section" id="hintSection" style="display: none;">
+            <h3>💡 Підказка:</h3>
+            <p id="hintText"></p>
+        </div>
+
+        <div class="feedback" id="feedback" style="display: none;"></div>
+
+        <div class="controls">
+            <button class="btn-hint" onclick="showHint()">💡 Підказка</button>
+            <button class="btn-next" onclick="nextProblem()">➡️ Наступне завдання</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="score">0</div>
+                <div class="stat-label">Бали</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="correctCount">0</div>
+                <div class="stat-label">Правильно</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="levelScore">0</div>
+                <div class="stat-label">Рівень</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="streak">0</div>
+                <div class="stat-label">Серія</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLevel = 'beginner';
+        let currentProblem = null;
+        let score = 0;
+        let correctCount = 0;
+        let levelScore = 0;
+        let streak = 0;
+        let showFormula = true;
+
+        const levelConfig = {
+            beginner: {
+                description: "Прості завдання з невеликою кількістю чисел та візуальними підказками",
+                minNumbers: 2,
+                maxNumbers: 4,
+                minValue: 1,
+                maxValue: 20,
+                points: 5,
+                showFormula: true
+            },
+            intermediate: {
+                description: "Завдання середньої складності з більшою кількістю чисел",
+                minNumbers: 4,
+                maxNumbers: 6,
+                minValue: 10,
+                maxValue: 50,
+                points: 10,
+                showFormula: true
+            },
+            advanced: {
+                description: "Складні завдання з реальними життєвими ситуаціями",
+                minNumbers: 5,
+                maxNumbers: 8,
+                minValue: 20,
+                maxValue: 100,
+                points: 15,
+                showFormula: false
+            }
+        };
+
+        const advancedScenarios = [
+            "Учень отримав такі оцінки з математики:",
+            "Температура повітря протягом тижня:",
+            "Ціни на товар в різних магазинах:",
+            "Швидкість автомобіля на різних ділянках дороги:",
+            "Кількість відвідувачів сайту за день:"
+        ];
+
+        function setLevel(level) {
+            currentLevel = level;
+            
+            // Оновлюємо активну кнопку
+            document.querySelectorAll('.level-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`.level-${level}`).classList.add('active');
+            
+            // Оновлюємо опис рівня
+            document.getElementById('levelDescription').textContent = levelConfig[level].description;
+            
+            // Оновлюємо формулу
+            showFormula = levelConfig[level].showFormula;
+            document.getElementById('formula').style.display = showFormula ? 'block' : 'none';
+            
+            // Генеруємо нове завдання
+            generateProblem();
+            
+            // Скидаємо серію
+            streak = 0;
+            updateStats();
+        }
+
+        function generateProblem() {
+            const config = levelConfig[currentLevel];
+            const numbersCount = Math.floor(Math.random() * (config.maxNumbers - config.minNumbers + 1)) + config.minNumbers;
+            
+            let numbers = [];
+            for (let i = 0; i < numbersCount; i++) {
+                numbers.push(Math.floor(Math.random() * (config.maxValue - config.minValue + 1)) + config.minValue);
+            }
+            
+            const sum = numbers.reduce((a, b) => a + b, 0);
+            const average = sum / numbersCount;
+            
+            currentProblem = {
+                numbers: numbers,
+                average: average,
+                sum: sum,
+                count: numbersCount
+            };
+            
+            displayProblem();
+            clearFeedback();
+        }
+
+        function displayProblem() {
+            const config = levelConfig[currentLevel];
+            const numbersContainer = document.getElementById('numbersContainer');
+            numbersContainer.innerHTML = '';
+            
+            let problemText = '';
+            
+            if (currentLevel === 'advanced') {
+                const scenario = advancedScenarios[Math.floor(Math.random() * advancedScenarios.length)];
+                problemText = `${scenario}`;
+            } else {
+                problemText = "Знайди середнє арифметичне чисел:";
+            }
+            
+            document.getElementById('problemText').textContent = problemText;
+            
+            currentProblem.numbers.forEach((number, index) => {
+                const numberCard = document.createElement('div');
+                numberCard.className = 'number-card';
+                numberCard.textContent = number;
+                if (currentLevel === 'beginner') {
+                    numberCard.style.background = `hsl(${index * 60}, 70%, 85%)`;
+                }
+                numbersContainer.appendChild(numberCard);
+            });
+            
+            // Очищаємо поле вводу
+            document.getElementById('answerInput').value = '';
+            document.getElementById('answerInput').focus();
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseFloat(document.getElementById('answerInput').value);
+            const feedback = document.getElementById('feedback');
+            const correctAnswer = currentProblem.average;
+            
+            if (isNaN(userAnswer)) {
+                feedback.textContent = "Будь ласка, введіть число!";
+                feedback.className = 'feedback incorrect';
+                feedback.style.display = 'block';
+                streak = 0;
+                updateStats();
+                return;
+            }
+            
+            const tolerance = 0.1; // Допуск для дробових чисел
+            const isCorrect = Math.abs(userAnswer - correctAnswer) < tolerance;
+            
+            if (isCorrect) {
+                feedback.innerHTML = `✅ <strong>Вірно!</strong> Середнє арифметичне: ${correctAnswer.toFixed(2)}`;
+                feedback.className = 'feedback correct';
+                
+                score += levelConfig[currentLevel].points;
+                correctCount++;
+                streak++;
+                levelScore += levelConfig[currentLevel].points;
+                
+                // Анімація святкування
+                document.querySelector('.problem-container').classList.add('celebrate');
+                setTimeout(() => {
+                    document.querySelector('.problem-container').classList.remove('celebrate');
+                }, 500);
+                
+            } else {
+                feedback.innerHTML = `❌ <strong>Не вірно.</strong> Правильна відповідь: ${correctAnswer.toFixed(2)}`;
+                feedback.className = 'feedback incorrect';
+                streak = 0;
+            }
+            
+            feedback.style.display = 'block';
+            updateStats();
+            hideHint();
+        }
+
+        function showHint() {
+            const hintSection = document.getElementById('hintSection');
+            const hintText = document.getElementById('hintText');
+            
+            hintText.innerHTML = `
+                <strong>Крок 1:</strong> Знайди суму чисел: ${currentProblem.numbers.join(' + ')} = ${currentProblem.sum}<br>
+                <strong>Крок 2:</strong> Поділи суму на кількість чисел: ${currentProblem.sum} ÷ ${currentProblem.count}<br>
+                <strong>Крок 3:</strong> Отримаєш: ${currentProblem.average.toFixed(2)}
+            `;
+            
+            hintSection.style.display = 'block';
+        }
+
+        function hideHint() {
+            document.getElementById('hintSection').style.display = 'none';
+        }
+
+        function clearFeedback() {
+            document.getElementById('feedback').style.display = 'none';
+            hideHint();
+        }
+
+        function nextProblem() {
+            generateProblem();
+        }
+
+        function updateStats() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('levelScore').textContent = levelScore;
+            document.getElementById('streak').textContent = streak;
+        }
+
+        // Дозволяємо натискати Enter для перевірки
+        document.getElementById('answerInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        // Ініціалізація
+        window.onload = function() {
+            setLevel('beginner');
+        };
+    </script>
+</body>
+</html>
