@@ -10,6 +10,7 @@
             background: #f0f8ff;
             padding: 20px;
             text-align: center;
+            margin: 0;
         }
         .container {
             max-width: 1000px;
@@ -34,7 +35,7 @@
         }
         .piece {
             position: absolute;
-            cursor: pointer;
+            cursor: move;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -42,8 +43,13 @@
             font-weight: bold;
             border: 2px solid;
             border-radius: 10px;
-            transition: all 0.3s ease;
+            transition: transform 0.2s ease;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            user-select: none;
+        }
+        .piece:active {
+            cursor: grabbing;
+            transform: scale(1.05);
         }
         .controls {
             margin: 20px 0;
@@ -180,7 +186,7 @@
         <div class="instructions">
             <h3>💡 Як грати:</h3>
             <p>• <strong>Натискай кнопки</strong> щоб розрізати фігуру на частини</p>
-            <p>• <strong>Перетягуй частини</strong> мишкою</p>
+            <p>• <strong>Перетягуй частини</strong> - затисни мишку і тягни</p>
             <p>• <strong>Натискай на зайві частини</strong> щоб їх знищити</p>
             <p>• <strong>Склади дріб</strong> який дорівнює відсотку із завдання</p>
         </div>
@@ -190,9 +196,9 @@
         </div>
 
         <div class="fraction-examples">
-            <div class="fraction-example">25% = 1/4 = 2/8 = 3/12</div>
-            <div class="fraction-example">50% = 1/2 = 2/4 = 4/8</div>
-            <div class="fraction-example">75% = 3/4 = 6/8 = 9/12</div>
+            <div class="fraction-example">25% = 1/4 = 2/8</div>
+            <div class="fraction-example">50% = 1/2 = 2/4 = 3/6 = 4/8 = 5/10</div>
+            <div class="fraction-example">75% = 3/4 = 6/8</div>
             <div class="fraction-example">20% = 1/5 = 2/10</div>
         </div>
 
@@ -203,7 +209,9 @@
             <button onclick="divideShape(4)">🔪 На 4 (1/4)</button>
             <button onclick="divideShape(5)">🔪 На 5 (1/5)</button>
             <button onclick="divideShape(6)">🔪 На 6 (1/6)</button>
+            <button onclick="divideShape(7)">🔪 На 7 (1/7)</button>
             <button onclick="divideShape(8)">🔪 На 8 (1/8)</button>
+            <button onclick="divideShape(9)">🔪 На 9 (1/9)</button>
             <button onclick="divideShape(10)">🔪 На 10 (1/10)</button>
             <button onclick="newProblem()">🎯 Нове завдання</button>
             <button onclick="clearWorkspace()">🗑️ Очистити</button>
@@ -228,7 +236,8 @@
         // Розміри та кольори для різних знаменників
         const sizeMap = {
             1: 120,  2: 85,   3: 70,   4: 60,
-            5: 54,   6: 49,   8: 42,   10: 38
+            5: 54,   6: 49,   7: 45,   8: 42,   
+            9: 40,   10: 38
         };
 
         const colorMap = {
@@ -238,31 +247,24 @@
             4: { bg: '#F44336', border: '#B71C1C' },  // червоний
             5: { bg: '#FFEB3B', border: '#F57F17' },  // жовтий
             6: { bg: '#9C27B0', border: '#4A148C' },  // фіолетовий
+            7: { bg: '#00BCD4', border: '#006064' },  // блакитний
             8: { bg: '#009688', border: '#004D40' },  // бірюзовий
+            9: { bg: '#FF5722', border: '#BF360C' },  // темно-оранжевий
             10: { bg: '#795548', border: '#3E2723' }  // коричневий
         };
 
         const problems = [
-            { text: "Покажи 25% дробом", percentage: 25, solutions: ["1/4", "2/8", "3/12", "5/20"] },
+            { text: "Покажи 25% дробом", percentage: 25, solutions: ["1/4", "2/8"] },
             { text: "Покажи 50% дробом", percentage: 50, solutions: ["1/2", "2/4", "3/6", "4/8", "5/10"] },
-            { text: "Покажи 75% дробом", percentage: 75, solutions: ["3/4", "6/8", "9/12"] },
-            { text: "Покажи 20% дробом", percentage: 20, solutions: ["1/5", "2/10", "3/15"] },
-            { text: "Покажи 40% дробом", percentage: 40, solutions: ["2/5", "4/10", "6/15"] },
-            { text: "Покажи 60% дробом", percentage: 60, solutions: ["3/5", "6/10", "9/15"] },
+            { text: "Покажи 75% дробом", percentage: 75, solutions: ["3/4", "6/8"] },
+            { text: "Покажи 20% дробом", percentage: 20, solutions: ["1/5", "2/10"] },
+            { text: "Покажи 40% дробом", percentage: 40, solutions: ["2/5", "4/10"] },
+            { text: "Покажи 60% дробом", percentage: 60, solutions: ["3/5", "6/10"] },
             { text: "Покажи 80% дробом", percentage: 80, solutions: ["4/5", "8/10"] },
-            { text: "Покажи 10% дробом", percentage: 10, solutions: ["1/10", "2/20"] },
-            { text: "Покажи 30% дробом", percentage: 30, solutions: ["3/10", "6/20"] },
-            { text: "Покажи 70% дробом", percentage: 70, solutions: ["7/10", "14/20"] }
+            { text: "Покажи 10% дробом", percentage: 10, solutions: ["1/10"] },
+            { text: "Покажи 30% дробом", percentage: 30, solutions: ["3/10"] },
+            { text: "Покажи 70% дробом", percentage: 70, solutions: ["7/10"] }
         ];
-
-        function simplifyFraction(numerator, denominator) {
-            const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
-            const divisor = gcd(numerator, denominator);
-            return {
-                numerator: numerator / divisor,
-                denominator: denominator / divisor
-            };
-        }
 
         function addShape() {
             const workspace = document.getElementById('workspace');
@@ -289,37 +291,42 @@
         }
 
         function makeDraggable(element) {
-            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            let isDragging = false;
+            let startX, startY, initialX, initialY;
             
-            element.onmousedown = dragMouseDown;
+            element.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDrag);
             
-            function dragMouseDown(e) {
+            function startDrag(e) {
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                initialX = element.offsetLeft;
+                initialY = element.offsetTop;
+                element.style.cursor = 'grabbing';
                 e.preventDefault();
-                pos3 = e.clientX;
-                pos4 = e.clientY;
-                document.onmouseup = closeDragElement;
-                document.onmousemove = elementDrag;
             }
             
-            function elementDrag(e) {
-                e.preventDefault();
-                pos1 = pos3 - e.clientX;
-                pos2 = pos4 - e.clientY;
-                pos3 = e.clientX;
-                pos4 = e.clientY;
+            function drag(e) {
+                if (!isDragging) return;
                 
-                const newTop = element.offsetTop - pos2;
-                const newLeft = element.offsetLeft - pos1;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
                 
-                if (newTop >= 0 && newTop <= 350 && newLeft >= 0 && newLeft <= 500) {
-                    element.style.top = newTop + "px";
-                    element.style.left = newLeft + "px";
+                const newX = initialX + dx;
+                const newY = initialY + dy;
+                
+                // Обмеження руху в межах workspace
+                if (newX >= 0 && newX <= 550 && newY >= 0 && newY <= 400) {
+                    element.style.left = newX + 'px';
+                    element.style.top = newY + 'px';
                 }
             }
             
-            function closeDragElement() {
-                document.onmouseup = null;
-                document.onmousemove = null;
+            function stopDrag() {
+                isDragging = false;
+                element.style.cursor = 'move';
             }
         }
 
