@@ -10,6 +10,7 @@
             text-align: center;
             background-color: #f0f8ff;
             padding: 20px;
+            margin: 0;
         }
 
         .container {
@@ -35,11 +36,16 @@
             background-color: #45a049;
         }
 
+        .cake-wrapper {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
         .cake-container {
             position: relative;
             width: 300px;
             height: 300px;
-            margin: 20px auto;
             border-radius: 50%;
             background-color: #ffb347;
             border: 3px solid #e68a00;
@@ -104,10 +110,16 @@
             color: #333;
             margin-bottom: 10px;
         }
+
+        .instructions {
+            color: #666;
+            font-style: italic;
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
-    <h1>Смачний інтерактивний торт!</h1>
+    <h1>🍰 Смачний інтерактивний торт! 🍰</h1>
     
     <div class="container">
         <button id="cut-myself-btn">Я сам поріжу!</button>
@@ -117,20 +129,24 @@
     <!-- Режим "Я сам поріжу!" -->
     <div id="cut-myself-container" class="hidden">
         <div class="mode-title">Режим: Я сам поріжу!</div>
-        <div class="cake-container" id="cake-1">
-            <div class="cut-line" id="cut-line-1"></div>
-            <!-- Частинки будуть створені через JS -->
+        <div class="cake-wrapper">
+            <div class="cake-container" id="cake-1">
+                <div class="cut-line" id="cut-line-1"></div>
+                <!-- Частинки будуть створені через JS -->
+            </div>
         </div>
         <div class="fraction-display" id="fraction-display-1">Залишилось: 1/1 (100%)</div>
         <button class="reset-btn" onclick="resetCake(1)">Верніть мені торт</button>
-        <p>ℹ️ Проведіть лінію через торт, щоб розрізати, або клікніть на шматочок, щоб з'їсти</p>
+        <div class="instructions">ℹ️ Проведіть лінію через торт, щоб розрізати, або клікніть на шматочок, щоб з'їсти</div>
     </div>
 
     <!-- Режим "Покажіть мені!" -->
     <div id="show-me-container" class="hidden">
         <div class="mode-title">Режим: Покажіть мені!</div>
-        <div class="cake-container" id="cake-2">
-            <!-- Частинки будуть створені через JS -->
+        <div class="cake-wrapper">
+            <div class="cake-container" id="cake-2">
+                <!-- Частинки будуть створені через JS -->
+            </div>
         </div>
         <div class="fraction-display" id="fraction-display-2">Залишилось: 1/1 (100%)</div>
         <div class="cut-controls">
@@ -155,8 +171,8 @@
         
         // Переменные состояния для каждого торта
         const cakeState = {
-            1: { pieces: 1, eaten: 0, cutAngle: 0 },
-            2: { pieces: 1, eaten: 0, cutAngle: 0 }
+            1: { pieces: 1, eaten: 0 },
+            2: { pieces: 1, eaten: 0 }
         };
 
         // Инициализация
@@ -177,16 +193,10 @@
         // Функция создания кусочков торта
         function createCakePieces(cakeId, pieces) {
             const container = document.getElementById(`cake-${cakeId}`);
-            container.innerHTML = '';
             
-            if (cakeId === 1) {
-                // Добавляем линию разреза для первого режима
-                const cutLine = document.createElement('div');
-                cutLine.className = 'cut-line';
-                cutLine.id = 'cut-line-1';
-                cutLine.style.display = 'none';
-                container.appendChild(cutLine);
-            }
+            // Очищаем только кусочки, но не линию разреза
+            const piecesToRemove = container.querySelectorAll('.piece');
+            piecesToRemove.forEach(piece => piece.remove());
             
             const angle = 360 / pieces;
             
@@ -240,8 +250,8 @@
 
         // Функция для получения цвета кусочка
         function getPieceColor(index, total) {
-            const hue = (index * 360 / total) % 360;
-            return `hsl(${hue}, 80%, 70%)`;
+            const baseColors = ['#ffb347', '#ff7eb9', '#7afcff', '#feff9c', '#fff740', '#c5f97c'];
+            return baseColors[index % baseColors.length];
         }
 
         // Функция "съедания" кусочка
@@ -281,7 +291,6 @@
             const cutLine = document.getElementById('cut-line-1');
             let isDrawing = false;
             let startX, startY;
-            let currentAngle = 0;
 
             container.addEventListener('mousedown', startCut);
             container.addEventListener('mousemove', drawCut);
@@ -292,19 +301,22 @@
             container.addEventListener('touchstart', function(e) {
                 e.preventDefault();
                 const touch = e.touches[0];
-                startCut({
-                    clientX: touch.clientX,
-                    clientY: touch.clientY
-                });
+                const rect = container.getBoundingClientRect();
+                startX = touch.clientX - rect.left;
+                startY = touch.clientY - rect.top;
+                isDrawing = true;
+                cutLine.style.display = 'block';
             });
 
             container.addEventListener('touchmove', function(e) {
+                if (!isDrawing) return;
                 e.preventDefault();
                 const touch = e.touches[0];
-                drawCut({
-                    clientX: touch.clientX,
-                    clientY: touch.clientY
-                });
+                const rect = container.getBoundingClientRect();
+                const currentX = touch.clientX - rect.left;
+                const currentY = touch.clientY - rect.top;
+                
+                drawCutLine(startX, startY, currentX, currentY);
             });
 
             container.addEventListener('touchend', endCut);
@@ -324,15 +336,20 @@
                 const currentX = e.clientX - rect.left;
                 const currentY = e.clientY - rect.top;
                 
-                // Вычисляем угол между начальной точкой и текущей позицией
-                const deltaX = currentX - startX;
-                const deltaY = currentY - startY;
-                currentAngle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+                drawCutLine(startX, startY, currentX, currentY);
+            }
+
+            function drawCutLine(fromX, fromY, toX, toY) {
+                const centerX = container.offsetWidth / 2;
+                const centerY = container.offsetHeight / 2;
+                
+                // Вычисляем угол между центром и направлением разреза
+                const angle = Math.atan2(toY - fromY, toX - fromX) * 180 / Math.PI;
                 
                 // Обновляем позицию и угол линии
                 cutLine.style.left = '50%';
                 cutLine.style.top = '50%';
-                cutLine.style.transform = `rotate(${currentAngle}deg)`;
+                cutLine.style.transform = `rotate(${angle}deg)`;
             }
 
             function endCut() {
@@ -343,7 +360,9 @@
                 
                 // Создаем новый разрез - увеличиваем количество кусочков
                 const newPieces = cakeState[1].pieces + 1;
-                createCakePieces(1, newPieces);
+                if (newPieces <= 12) { // Ограничим максимальное количество кусочков
+                    createCakePieces(1, newPieces);
+                }
             }
         }
     </script>
