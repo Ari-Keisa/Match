@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Простий тренажер дробів</title>
+    <title>Тренажер дробів з перевіркою</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,21 +22,15 @@
         h1 {
             color: #2c5aa0;
         }
-        .instructions {
-            background: #e6f2ff;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            text-align: left;
-        }
         .workspace {
-            width: 300px;
+            width: 400px;
             height: 300px;
             border: 3px dashed #2c5aa0;
             border-radius: 15px;
             margin: 20px auto;
             background: #f9f9f9;
             position: relative;
+            overflow: hidden; /* Щоб частини не вилітали */
         }
         .shape {
             width: 100px;
@@ -46,6 +40,8 @@
             border-radius: 10px;
             position: absolute;
             cursor: move;
+            left: 150px;
+            top: 100px;
         }
         .piece {
             width: 80px;
@@ -60,13 +56,17 @@
             justify-content: center;
             color: white;
             font-weight: bold;
+            font-size: 14px;
         }
         .controls {
             margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         button {
             padding: 10px 20px;
-            margin: 5px;
             border: none;
             border-radius: 5px;
             background: #2c5aa0;
@@ -77,32 +77,90 @@
         button:hover {
             background: #1e3d72;
         }
+        .check-btn {
+            background: #27ae60;
+            font-weight: bold;
+        }
+        .check-btn:hover {
+            background: #219653;
+        }
         .stats {
             font-size: 18px;
             font-weight: bold;
             margin: 15px 0;
+            display: flex;
+            justify-content: space-around;
         }
         .problem {
-            background: #fff3cd;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
+            background: #e6f2ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
             font-size: 18px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .correct {
+            background: #d4edda !important;
+            color: #155724 !important;
+            border: 2px solid #c3e6cb !important;
+            animation: celebrate 2s ease-in-out;
+        }
+        .incorrect {
+            background: #f8d7da !important;
+            color: #721c24 !important;
+            border: 2px solid #f5c6cb !important;
+            animation: shake 0.5s ease-in-out;
+        }
+        .feedback {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 40px;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 1000;
+            animation: floatUp 2s ease-in-out forwards;
+        }
+        .success-feedback {
+            background: #27ae60;
+            color: white;
+        }
+        .error-feedback {
+            background: #e74c3c;
+            color: white;
+        }
+
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -100px);
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🧩 Простий тренажер дробів</h1>
+        <h1>🧩 Тренажер дробів з перевіркою</h1>
         
-        <div class="instructions">
-            <h3>🎯 Як користуватися:</h3>
-            <p>1. Натисни "Додати фігуру" - з'явиться зелений квадрат</p>
-            <p>2. Натисни "Розрізати на..." - квадрат розіб'ється на частини</p>
-            <p>3. Перетягуй частини мишкою (затисни ліву кнопку і тягни)</p>
-            <p>4. Натискай на частини, щоб видалити їх</p>
-        </div>
-
         <div class="problem" id="problem">
             Натисни "Нове завдання" щоб розпочати!
         </div>
@@ -114,9 +172,11 @@
         <div class="controls">
             <button onclick="addShape()">➕ Додати фігуру</button>
             <button onclick="divideShape(2)">🔪 Розрізати на 2</button>
+            <button onclick="divideShape(3)">🔪 Розрізати на 3</button>
             <button onclick="divideShape(4)">🔪 Розрізати на 4</button>
             <button onclick="newProblem()">🎯 Нове завдання</button>
-            <button onclick="clearWorkspace()">🗑️ Очистити все</button>
+            <button onclick="clearWorkspace()">🗑️ Очистити</button>
+            <button class="check-btn" onclick="checkSolution()">✅ Перевірити!</button>
         </div>
 
         <div class="stats">
@@ -129,24 +189,30 @@
     <script>
         let score = 0;
         let currentShape = null;
+        let currentProblem = null;
+        let targetFraction = null;
+
+        const problems = [
+            { text: "Створи дріб 1/2 (розріж фігуру на 2 частини)", target: "1/2" },
+            { text: "Створи дріб 1/4 (розріж фігуру на 4 частини)", target: "1/4" },
+            { text: "Створи дріб 3/4 (розріж на 4 частини і залиши 3)", target: "3/4" },
+            { text: "Створи дріб 2/3 (розріж на 3 частини і залиши 2)", target: "2/3" },
+            { text: "Покажи половину (1/2)", target: "1/2" }
+        ];
 
         function addShape() {
             const workspace = document.getElementById('workspace');
             
-            // Видаляємо стару фігуру, якщо вона є
             if (currentShape) {
                 currentShape.remove();
             }
             
-            // Створюємо нову фігуру
             const shape = document.createElement('div');
             shape.className = 'shape';
-            shape.style.left = '100px';
+            shape.style.left = '150px';
             shape.style.top = '100px';
             
-            // Робимо фігуру перетягуваною
             makeDraggable(shape);
-            
             workspace.appendChild(shape);
             currentShape = shape;
             updateStats();
@@ -172,9 +238,14 @@
                 pos3 = e.clientX;
                 pos4 = e.clientY;
                 
-                // Оновлюємо позицію
-                element.style.top = (element.offsetTop - pos2) + "px";
-                element.style.left = (element.offsetLeft - pos1) + "px";
+                // Обмежуємо рух межами workspace
+                const newTop = element.offsetTop - pos2;
+                const newLeft = element.offsetLeft - pos1;
+                
+                if (newTop >= 0 && newTop <= 220 && newLeft >= 0 && newLeft <= 320) {
+                    element.style.top = newTop + "px";
+                    element.style.left = newLeft + "px";
+                }
             }
             
             function closeDragElement() {
@@ -193,28 +264,24 @@
             const shapeRect = currentShape.getBoundingClientRect();
             const workspaceRect = workspace.getBoundingClientRect();
             
-            // Видаляємо оригінальну фігуру
             currentShape.remove();
             
-            // Створюємо частини
             for (let i = 0; i < parts; i++) {
                 const piece = document.createElement('div');
                 piece.className = 'piece';
                 piece.textContent = `1/${parts}`;
+                piece.dataset.fraction = `1/${parts}`;
                 
-                // Розташовуємо частини по колу
                 const angle = (i * 2 * Math.PI) / parts;
                 const radius = 80;
-                const centerX = shapeRect.left - workspaceRect.left + 50;
-                const centerY = shapeRect.top - workspaceRect.top + 50;
+                const centerX = 200;
+                const centerY = 150;
                 
                 piece.style.left = (centerX + radius * Math.cos(angle) - 40) + 'px';
                 piece.style.top = (centerY + radius * Math.sin(angle) - 40) + 'px';
                 
-                // Робимо перетягуваним
                 makeDraggable(piece);
                 
-                // Додаємо можливість видаляти кліком
                 piece.addEventListener('click', function() {
                     this.remove();
                     updateStats();
@@ -223,20 +290,67 @@
                 workspace.appendChild(piece);
             }
             
-            score += 5;
             updateStats();
         }
 
         function newProblem() {
-            const problems = [
-                "Створи дріб 1/2 (розріж фігуру на 2 частини)",
-                "Створи дріб 1/4 (розріж фігуру на 4 частини)", 
-                "Покажи, як виглядає половина",
-                "Створи 3 частини з 4 (3/4)"
-            ];
+            // Скидаємо попередній стан
+            clearWorkspace();
+            const problemElement = document.getElementById('problem');
+            problemElement.className = 'problem';
             
-            const randomProblem = problems[Math.floor(Math.random() * problems.length)];
-            document.getElementById('problem').textContent = randomProblem;
+            // Вибираємо випадкове завдання
+            currentProblem = problems[Math.floor(Math.random() * problems.length)];
+            problemElement.textContent = currentProblem.text;
+            targetFraction = currentProblem.target;
+            
+            // Додаємо фігуру автоматично
+            addShape();
+        }
+
+        function checkSolution() {
+            if (!currentProblem) {
+                showFeedback('Спочатку отримай завдання!', 'error');
+                return;
+            }
+            
+            const pieces = document.querySelectorAll('.piece');
+            const problemElement = document.getElementById('problem');
+            
+            if (pieces.length === 0) {
+                problemElement.classList.add('incorrect');
+                showFeedback('Спробуй ще!', 'error');
+                return;
+            }
+            
+            const currentFraction = document.getElementById('fraction').textContent;
+            
+            if (currentFraction === targetFraction) {
+                // Вірно!
+                problemElement.classList.add('correct');
+                problemElement.innerHTML = `✅ <strong>Вірно! Молодець!</strong>`;
+                score += 10;
+                updateStats();
+                showFeedback('Вірно! +10 балів!', 'success');
+                
+                // Автоматично нове завдання через 2 секунди
+                setTimeout(newProblem, 2000);
+            } else {
+                // Не вірно
+                problemElement.classList.add('incorrect');
+                showFeedback('Спробуй ще!', 'error');
+            }
+        }
+
+        function showFeedback(message, type) {
+            const feedback = document.createElement('div');
+            feedback.className = `feedback ${type}-feedback`;
+            feedback.textContent = message;
+            document.body.appendChild(feedback);
+            
+            setTimeout(() => {
+                feedback.remove();
+            }, 2000);
         }
 
         function clearWorkspace() {
@@ -253,16 +367,15 @@
             
             if (pieces.length > 0) {
                 const firstPiece = pieces[0];
-                const fractionText = firstPiece.textContent;
-                const denominator = fractionText.split('/')[1];
+                const denominator = firstPiece.textContent.split('/')[1];
                 document.getElementById('fraction').textContent = `${pieces.length}/${denominator}`;
             } else {
                 document.getElementById('fraction').textContent = '0/1';
             }
         }
 
-        // Додаємо першу фігуру при завантаженні
-        window.onload = addShape;
+        // Початкове завдання при завантаженні
+        window.onload = newProblem;
     </script>
 </body>
 </html>
