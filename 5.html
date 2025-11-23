@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Інтерактивний торт</title>
+    <title>Торт з кнопками</title>
     <style>
         body {
             font-family: 'Comic Sans MS', cursive, sans-serif;
@@ -13,44 +13,10 @@
             margin: 0;
         }
 
-        .container {
-            margin-bottom: 20px;
-        }
-
-        button {
-            background-color: #4CAF50;
-            border: none;
-            color: white;
-            padding: 12px 24px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 10px 5px;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        .cake-wrapper {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
-        }
-
         .cake-container {
-            position: relative;
             width: 300px;
             height: 300px;
-        }
-
-        .cake-circle {
-            width: 100%;
-            height: 100%;
+            margin: 20px auto;
             border-radius: 50%;
             background: #ffb347;
             border: 3px solid #e68a00;
@@ -68,28 +34,11 @@
         }
 
         .piece:hover {
-            opacity: 0.8;
+            opacity: 0.9;
         }
 
         .piece.eaten {
             opacity: 0.3;
-        }
-
-        .cut-line {
-            position: absolute;
-            background-color: red;
-            height: 3px;
-            width: 424px;
-            top: 150px;
-            left: -62px;
-            transform-origin: center;
-            pointer-events: none;
-            display: none;
-            z-index: 10;
-        }
-
-        .cut-line.visible {
-            display: block;
         }
 
         .fraction-display {
@@ -103,151 +52,88 @@
             margin-top: 20px;
         }
 
-        .cut-btn {
-            background-color: #008CBA;
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
             margin: 5px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
         }
 
         .reset-btn {
             background-color: #ff6b6b;
         }
-
-        .hidden {
-            display: none;
-        }
-
-        .mode-title {
-            font-size: 20px;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .instructions {
-            color: #666;
-            font-style: italic;
-            margin: 10px 0;
-        }
-
-        .cut-animation {
-            animation: cutFlash 0.5s ease-in-out;
-        }
-
-        @keyframes cutFlash {
-            0% { background-color: red; }
-            100% { background-color: transparent; }
-        }
     </style>
 </head>
 <body>
-    <h1>🍰 Смачний інтерактивний торт! 🍰</h1>
+    <h1>🍰 Смачний торт! 🍰</h1>
     
-    <div class="container">
-        <button id="cut-myself-btn">Я сам поріжу!</button>
-        <button id="show-me-btn">Покажіть мені!</button>
+    <div class="cake-container" id="cake">
+        <!-- Торт буде тут -->
     </div>
-
-    <!-- Режим "Я сам поріжу!" -->
-    <div id="cut-myself-container" class="hidden">
-        <div class="mode-title">Режим: Я сам поріжу!</div>
-        <div class="cake-wrapper">
-            <div class="cake-container" id="cake-1">
-                <div class="cake-circle" id="cake-circle-1">
-                    <div class="cut-line" id="cut-line-1"></div>
-                    <!-- Кусочки будут создаваться через JS -->
-                </div>
-            </div>
-        </div>
-        <div class="fraction-display" id="fraction-display-1">Залишилось: 1/1 (100%)</div>
-        <button class="reset-btn" onclick="resetCake(1)">Верніть мені торт</button>
-        <div class="instructions">ℹ️ Проведіть лінію через торт, щоб розрізати, або клікніть на шматочок, щоб з'їсти</div>
+    
+    <div class="fraction-display" id="fraction-display">Залишилось: 1/1 (100%)</div>
+    
+    <div class="cut-controls">
+        <p>Розрізати торт на:</p>
+        <button onclick="cutCake(1)">Цілий торт</button>
+        <button onclick="cutCake(2)">2 частини</button>
+        <button onclick="cutCake(3)">3 частини</button>
+        <button onclick="cutCake(4)">4 частини</button>
+        <button onclick="cutCake(6)">6 частин</button>
+        <button onclick="cutCake(8)">8 частин</button>
+        <button onclick="cutCake(12)">12 частин</button>
     </div>
-
-    <!-- Режим "Покажіть мені!" -->
-    <div id="show-me-container" class="hidden">
-        <div class="mode-title">Режим: Покажіть мені!</div>
-        <div class="cake-wrapper">
-            <div class="cake-container" id="cake-2">
-                <div class="cake-circle" id="cake-circle-2">
-                    <!-- Кусочки будут создаваться через JS -->
-                </div>
-            </div>
-        </div>
-        <div class="fraction-display" id="fraction-display-2">Залишилось: 1/1 (100%)</div>
-        <div class="cut-controls">
-            <p>Розрізати торт на:</p>
-            <button class="cut-btn" onclick="cutCake(2, 2)">2 частини</button>
-            <button class="cut-btn" onclick="cutCake(3, 2)">3 частини</button>
-            <button class="cut-btn" onclick="cutCake(4, 2)">4 частини</button>
-            <button class="cut-btn" onclick="cutCake(6, 2)">6 частин</button>
-            <button class="cut-btn" onclick="cutCake(8, 2)">8 частин</button>
-            <button class="cut-btn" onclick="cutCake(10, 2)">10 частин</button>
-            <button class="cut-btn" onclick="cutCake(12, 2)">12 частин</button>
-        </div>
-        <button class="reset-btn" onclick="resetCake(2)">Верніть мені торт</button>
-    </div>
+    
+    <button class="reset-btn" onclick="resetCake()">Верніть мені торт</button>
 
     <script>
-        // Элементы DOM
-        const cutMyselfBtn = document.getElementById('cut-myself-btn');
-        const showMeBtn = document.getElementById('show-me-btn');
-        const cutMyselfContainer = document.getElementById('cut-myself-container');
-        const showMeContainer = document.getElementById('show-me-container');
-        
-        // Состояние
-        let cake1Pieces = 1;
-        let cake1Eaten = 0;
-        let cake2Pieces = 1;
-        let cake2Eaten = 0;
+        let totalPieces = 1;
+        let eatenPieces = 0;
 
-        // Инициализация
-        createCakePieces(1, 1);
-        createCakePieces(2, 1);
+        // Початковий торт
+        createCake(1);
 
-        // Обработчики кнопок режимов
-        cutMyselfBtn.addEventListener('click', function() {
-            cutMyselfContainer.classList.remove('hidden');
-            showMeContainer.classList.add('hidden');
-        });
-
-        showMeBtn.addEventListener('click', function() {
-            showMeContainer.classList.remove('hidden');
-            cutMyselfContainer.classList.add('hidden');
-        });
-
-        // Функция создания кусочков торта
-        function createCakePieces(cakeId, pieces) {
-            const cakeCircle = document.getElementById(`cake-circle-${cakeId}`);
-            cakeCircle.innerHTML = '';
-            
-            if (cakeId === 1) {
-                // Добавляем линию разреза для первого режима
-                const cutLine = document.createElement('div');
-                cutLine.className = 'cut-line';
-                cutLine.id = 'cut-line-1';
-                cakeCircle.appendChild(cutLine);
-            }
+        function createCake(pieces) {
+            const container = document.getElementById('cake');
+            container.innerHTML = '';
             
             if (pieces === 1) {
-                // Цельный торт - просто оранжевый круг
-                cakeCircle.style.backgroundColor = '#ffb347';
-                cakeCircle.style.border = '3px solid #e68a00';
+                // Цілий торт
+                container.style.background = '#ffb347';
+                container.style.border = '3px solid #e68a00';
                 
-                // Добавляем обработчик клика на весь торт
-                cakeCircle.addEventListener('click', function(e) {
-                    if (e.target === cakeCircle) {
-                        eatPiece(cakeId, 0);
+                // Додаємо обробник кліку на весь торт
+                container.onclick = function() {
+                    if (pieces === 1) {
+                        eatenPieces = 1;
+                        updateFractionDisplay();
+                        container.style.opacity = '0.3';
                     }
-                });
+                };
             } else {
-                // Разрезанный торт
+                // Розрізаний торт
+                container.style.background = 'none';
+                container.style.border = 'none';
+                
                 const angle = 360 / pieces;
                 
                 for (let i = 0; i < pieces; i++) {
                     const piece = document.createElement('div');
                     piece.className = 'piece';
-                    piece.dataset.index = i;
                     
-                    // Создаем клип-пат для сегмента круга
+                    // Створюємо сегмент круга
                     const startAngle = i * angle;
                     const endAngle = (i + 1) * angle;
                     
@@ -257,33 +143,23 @@
                     
                     piece.style.backgroundColor = getPieceColor(i, pieces);
                     
-                    piece.addEventListener('click', function() {
-                        eatPiece(cakeId, i);
-                    });
+                    piece.onclick = function() {
+                        if (!piece.classList.contains('eaten')) {
+                            piece.classList.add('eaten');
+                            eatenPieces++;
+                            updateFractionDisplay();
+                        }
+                    };
                     
-                    cakeCircle.appendChild(piece);
+                    container.appendChild(piece);
                 }
-                
-                // Убираем фон у основного круга
-                cakeCircle.style.background = 'none';
-                cakeCircle.style.border = 'none';
             }
             
-            if (cakeId === 1) {
-                cake1Pieces = pieces;
-                cake1Eaten = 0;
-                if (pieces === 1) {
-                    setupCuttingHandlers(cakeCircle);
-                }
-            } else {
-                cake2Pieces = pieces;
-                cake2Eaten = 0;
-            }
-            
-            updateFractionDisplay(cakeId);
+            totalPieces = pieces;
+            eatenPieces = 0;
+            updateFractionDisplay();
         }
 
-        // Функция создания clip-path для сегмента круга
         function createClipPath(startAngle, endAngle) {
             const startRad = (startAngle - 90) * Math.PI / 180;
             const endRad = (endAngle - 90) * Math.PI / 180;
@@ -298,146 +174,28 @@
             return `path('M 50 50 L ${x1} ${y1} A 50 50 0 ${largeArc} 1 ${x2} ${y2} Z')`;
         }
 
-        // Функция для получения цвета кусочка
         function getPieceColor(index, total) {
-            const brightColors = [
-                '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', 
-                '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
-                '#F8C471', '#82E0AA'
+            const colors = [
+                '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', 
+                '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F', 
+                '#BB8FCE', '#85C1E9', '#F8C471', '#82E0AA'
             ];
-            return brightColors[index % brightColors.length];
+            return colors[index % colors.length];
         }
 
-        // Функция "съедания" кусочка
-        function eatPiece(cakeId, pieceIndex) {
-            if (cakeId === 1) {
-                cake1Eaten++;
-            } else {
-                cake2Eaten++;
-            }
-            updateFractionDisplay(cakeId);
+        function cutCake(pieces) {
+            createCake(pieces);
         }
 
-        // Функция обновления отображения дроби
-        function updateFractionDisplay(cakeId) {
-            let pieces, eaten;
-            
-            if (cakeId === 1) {
-                pieces = cake1Pieces;
-                eaten = cake1Eaten;
-            } else {
-                pieces = cake2Pieces;
-                eaten = cake2Eaten;
-            }
-            
-            const remaining = pieces - eaten;
-            const percentage = Math.round((remaining / pieces) * 100);
-            
-            const display = document.getElementById(`fraction-display-${cakeId}`);
-            display.textContent = `Залишилось: ${remaining}/${pieces} (${percentage}%)`;
+        function resetCake() {
+            createCake(1);
         }
 
-        // Функция разрезания торта (для второго режима)
-        function cutCake(pieces, cakeId) {
-            createCakePieces(cakeId, pieces);
-        }
-
-        // Функция сброса торта
-        function resetCake(cakeId) {
-            createCakePieces(cakeId, 1);
-            if (cakeId === 1) {
-                const cakeCircle = document.getElementById('cake-circle-1');
-                setupCuttingHandlers(cakeCircle);
-            }
-        }
-
-        // Обработчики для рисования линий разреза (первый режим)
-        function setupCuttingHandlers(cakeCircle) {
-            const cutLine = document.getElementById('cut-line-1');
-            let isDrawing = false;
-            let startAngle = 0;
-
-            cakeCircle.addEventListener('mousedown', startCut);
-            cakeCircle.addEventListener('mousemove', drawCut);
-            cakeCircle.addEventListener('mouseup', endCut);
-            cakeCircle.addEventListener('mouseleave', endCut);
-
-            // Для touch устройств
-            cakeCircle.addEventListener('touchstart', function(e) {
-                e.preventDefault();
-                const touch = e.touches[0];
-                startCutFromPoint(touch.clientX, touch.clientY);
-            });
-
-            cakeCircle.addEventListener('touchmove', function(e) {
-                if (!isDrawing) return;
-                e.preventDefault();
-                const touch = e.touches[0];
-                drawCutFromPoint(touch.clientX, touch.clientY);
-            });
-
-            cakeCircle.addEventListener('touchend', endCut);
-
-            function startCutFromPoint(clientX, clientY) {
-                const rect = cakeCircle.getBoundingClientRect();
-                const x = clientX - rect.left - 150;
-                const y = clientY - rect.top - 150;
-                startAngle = Math.atan2(y, x) * 180 / Math.PI;
-                isDrawing = true;
-                cutLine.classList.add('visible');
-            }
-
-            function startCut(e) {
-                const rect = cakeCircle.getBoundingClientRect();
-                const x = e.clientX - rect.left - 150;
-                const y = e.clientY - rect.top - 150;
-                startAngle = Math.atan2(y, x) * 180 / Math.PI;
-                isDrawing = true;
-                cutLine.classList.add('visible');
-            }
-
-            function drawCutFromPoint(clientX, clientY) {
-                const rect = cakeCircle.getBoundingClientRect();
-                const x = clientX - rect.left - 150;
-                const y = clientY - rect.top - 150;
-                const currentAngle = Math.atan2(y, x) * 180 / Math.PI;
-                
-                const cutAngle = currentAngle;
-                cutLine.style.transform = `rotate(${cutAngle}deg)`;
-            }
-
-            function drawCut(e) {
-                if (!isDrawing) return;
-                
-                const rect = cakeCircle.getBoundingClientRect();
-                const x = e.clientX - rect.left - 150;
-                const y = e.clientY - rect.top - 150;
-                const currentAngle = Math.atan2(y, x) * 180 / Math.PI;
-                
-                const cutAngle = currentAngle;
-                cutLine.style.transform = `rotate(${cutAngle}deg)`;
-            }
-
-            function endCut() {
-                if (!isDrawing) return;
-                
-                isDrawing = false;
-                
-                // Анимация разреза
-                cutLine.classList.add('cut-animation');
-                setTimeout(() => {
-                    cutLine.classList.remove('cut-animation');
-                    cutLine.classList.remove('visible');
-                }, 500);
-                
-                // Создаем новый разрез
-                if (cake1Pieces < 12) {
-                    const newPieces = cake1Pieces + 1;
-                    setTimeout(() => {
-                        createCakePieces(1, newPieces);
-                    }, 300);
-                }
-            }
+        function updateFractionDisplay() {
+            const remaining = totalPieces - eatenPieces;
+            const percentage = Math.round((remaining / totalPieces) * 100);
+            document.getElementById('fraction-display').textContent = 
+                `Залишилось: ${remaining}/${totalPieces} (${percentage}%)`;
         }
     </script>
 </body>
