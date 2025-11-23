@@ -3,349 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Віртуальні маніпулятиви - Дроби та частини цілого</title>
+    <title>Простий тренажер дробів</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #f0f8ff;
             padding: 20px;
-            color: #333;
+            text-align: center;
         }
-
         .container {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            max-width: 1200px;
+            max-width: 800px;
             margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-
         h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 15px;
-            font-size: 2.2em;
+            color: #2c5aa0;
         }
-
-        .subtitle {
-            color: #7f8c8d;
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 1.1em;
-        }
-
-        .workspace {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin: 30px 0;
-        }
-
-        @media (max-width: 768px) {
-            .workspace {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .manipulatives-area {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 20px;
-            border: 3px solid #34495e;
-            min-height: 400px;
-            position: relative;
-        }
-
-        .manipulative {
-            position: absolute;
-            cursor: grab;
-            transition: transform 0.2s ease;
-            user-select: none;
-            touch-action: none;
-        }
-
-        .manipulative:active {
-            cursor: grabbing;
-            transform: scale(1.05);
-        }
-
-        .circle {
-            border-radius: 50%;
-            border: 3px solid #3498db;
-            background: rgba(52, 152, 219, 0.2);
-        }
-
-        .rectangle {
-            border: 3px solid #e74c3c;
-            background: rgba(231, 76, 60, 0.2);
-            border-radius: 10px;
-        }
-
-        .fraction-piece {
-            position: absolute;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-
-        .fraction-piece:hover {
-            transform: scale(1.05);
-        }
-
-        .controls-panel {
-            background: #ecf0f1;
-            border-radius: 15px;
-            padding: 20px;
-        }
-
-        .control-group {
-            margin-bottom: 20px;
-        }
-
-        .control-group h3 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-
-        .shape-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        button {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 10px;
-            background: #3498db;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
-        }
-
-        .fraction-controls {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
-
-        .fraction-btn {
-            background: #e74c3c;
-        }
-
-        .fraction-btn:hover {
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
-        }
-
-        .stats {
-            display: flex;
-            justify-content: space-around;
-            background: #2c3e50;
-            color: white;
+        .instructions {
+            background: #e6f2ff;
             padding: 15px;
             border-radius: 10px;
-            margin-top: 20px;
+            margin: 15px 0;
+            text-align: left;
         }
-
-        .stat-item {
-            text-align: center;
+        .workspace {
+            width: 300px;
+            height: 300px;
+            border: 3px dashed #2c5aa0;
+            border-radius: 15px;
+            margin: 20px auto;
+            background: #f9f9f9;
+            position: relative;
         }
-
-        .stat-value {
-            font-size: 1.5em;
-            font-weight: bold;
-        }
-
-        .visual-feedback {
-            position: fixed;
-            pointer-events: none;
-            font-size: 1.5em;
-            font-weight: bold;
-            animation: floatUp 1s ease-out forwards;
-            z-index: 1000;
-        }
-
-        @keyframes floatUp {
-            0% {
-                transform: translateY(0);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-        }
-
-        .snap-zone {
-            position: absolute;
-            border: 2px dashed #27ae60;
-            background: rgba(39, 174, 96, 0.1);
+        .shape {
+            width: 100px;
+            height: 100px;
+            background: #4CAF50;
+            border: 2px solid #2E7D32;
             border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: #27ae60;
-        }
-
-        .success {
-            background: rgba(39, 174, 96, 0.3) !important;
-            border-color: #27ae60 !important;
-        }
-
-        .toolbox {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            background: white;
-            border-radius: 10px;
-            padding: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            display: flex;
-            gap: 10px;
+            cursor: move;
         }
-
-        .tool {
-            width: 40px;
-            height: 40px;
-            border: 2px solid #bdc3c7;
+        .piece {
+            width: 80px;
+            height: 80px;
+            background: #FF9800;
+            border: 2px solid #E65100;
             border-radius: 8px;
+            position: absolute;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            font-size: 1.2em;
-        }
-
-        .tool.active {
-            border-color: #3498db;
-            background: #3498db;
             color: white;
+            font-weight: bold;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background: #2c5aa0;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #1e3d72;
+        }
+        .stats {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        .problem {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 18px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎮 Віртуальні маніпулятиви - Дроби</h1>
-        <p class="subtitle">Переміщуй, розрізай та експериментуй з частинами цілого!</p>
+        <h1>🧩 Простий тренажер дробів</h1>
         
-        <div class="workspace">
-            <div class="manipulatives-area" id="workspace">
-                <!-- Тут будуть з'являтися маніпулятиви -->
-                <div class="snap-zone" id="wholeZone" style="width: 200px; height: 200px; top: 50px; left: 50px;">
-                    ЦІЛЕ
-                </div>
-            </div>
-            
-            <div class="controls-panel">
-                <div class="control-group">
-                    <h3>🔷 Фігури</h3>
-                    <div class="shape-buttons">
-                        <button onclick="addShape('circle')">⭕ Коло</button>
-                        <button onclick="addShape('rectangle')">⬜ Прямокутник</button>
-                        <button onclick="addShape('square')">🟦 Квадрат</button>
-                    </div>
-                </div>
-                
-                <div class="control-group">
-                    <h3>🔪 Розрізати на частини</h3>
-                    <div class="fraction-controls">
-                        <button class="fraction-btn" onclick="divideShape(2)">½</button>
-                        <button class="fraction-btn" onclick="divideShape(3)">⅓</button>
-                        <button class="fraction-btn" onclick="divideShape(4)">¼</button>
-                        <button class="fraction-btn" onclick="divideShape(5)">⅕</button>
-                        <button class="fraction-btn" onclick="divideShape(6)">⅙</button>
-                        <button class="fraction-btn" onclick="divideShape(8)">⅛</button>
-                        <button class="fraction-btn" onclick="divideShape(10)">⅒</button>
-                        <button class="fraction-btn" onclick="divideShape(12)">¹⁄₁₂</button>
-                    </div>
-                </div>
-                
-                <div class="control-group">
-                    <h3>🎯 Дії</h3>
-                    <div class="shape-buttons">
-                        <button onclick="clearWorkspace()" style="background: #e74c3c;">🗑️ Очистити</button>
-                        <button onclick="createFractionProblem()" style="background: #9b59b6;">🎲 Завдання</button>
-                        <button onclick="showHint()" style="background: #f39c12;">💡 Підказка</button>
-                    </div>
-                </div>
-                
-                <div class="stats">
-                    <div class="stat-item">
-                        <div class="stat-value" id="totalPieces">0</div>
-                        <div>Частин</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="currentFraction">0/1</div>
-                        <div>Дріб</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="score">0</div>
-                        <div>Бали</div>
-                    </div>
-                </div>
-            </div>
+        <div class="instructions">
+            <h3>🎯 Як користуватися:</h3>
+            <p>1. Натисни "Додати фігуру" - з'явиться зелений квадрат</p>
+            <p>2. Натисни "Розрізати на..." - квадрат розіб'ється на частини</p>
+            <p>3. Перетягуй частини мишкою (затисни ліву кнопку і тягни)</p>
+            <p>4. Натискай на частини, щоб видалити їх</p>
+        </div>
+
+        <div class="problem" id="problem">
+            Натисни "Нове завдання" щоб розпочати!
+        </div>
+
+        <div class="workspace" id="workspace">
+            <!-- Тут з'являтимуться фігури -->
+        </div>
+
+        <div class="controls">
+            <button onclick="addShape()">➕ Додати фігуру</button>
+            <button onclick="divideShape(2)">🔪 Розрізати на 2</button>
+            <button onclick="divideShape(4)">🔪 Розрізати на 4</button>
+            <button onclick="newProblem()">🎯 Нове завдання</button>
+            <button onclick="clearWorkspace()">🗑️ Очистити все</button>
+        </div>
+
+        <div class="stats">
+            <div>Частин: <span id="pieceCount">0</span></div>
+            <div>Дріб: <span id="fraction">0/1</span></div>
+            <div>Бали: <span id="score">0</span></div>
         </div>
     </div>
 
     <script>
-        let selectedShape = null;
         let score = 0;
-        let currentProblem = null;
+        let currentShape = null;
 
-        // Кольори для різних дробів
-        const fractionColors = [
-            '#3498db', '#e74c3c', '#27ae60', '#f39c12', 
-            '#9b59b6', '#1abc9c', '#d35400', '#34495e'
-        ];
-
-        function addShape(type) {
+        function addShape() {
             const workspace = document.getElementById('workspace');
-            const shape = document.createElement('div');
-            shape.className = `manipulative ${type}`;
             
-            const size = 120;
-            const left = Math.random() * (workspace.offsetWidth - size - 100) + 50;
-            const top = Math.random() * (workspace.offsetHeight - size - 100) + 50;
-            
-            shape.style.width = size + 'px';
-            shape.style.height = size + 'px';
-            shape.style.left = left + 'px';
-            shape.style.top = top + 'px';
-            
-            if (type === 'circle') {
-                shape.style.borderRadius = '50%';
-                shape.style.background = 'rgba(52, 152, 219, 0.3)';
-            } else {
-                shape.style.borderRadius = '15px';
-                shape.style.background = type === 'rectangle' 
-                    ? 'rgba(231, 76, 60, 0.3)' 
-                    : 'rgba(46, 204, 113, 0.3)';
+            // Видаляємо стару фігуру, якщо вона є
+            if (currentShape) {
+                currentShape.remove();
             }
             
-            makeDraggable(shape);
-            workspace.appendChild(shape);
+            // Створюємо нову фігуру
+            const shape = document.createElement('div');
+            shape.className = 'shape';
+            shape.style.left = '100px';
+            shape.style.top = '100px';
             
-            showVisualFeedback('+1 фігура', left, top);
+            // Робимо фігуру перетягуваною
+            makeDraggable(shape);
+            
+            workspace.appendChild(shape);
+            currentShape = shape;
             updateStats();
         }
 
@@ -353,7 +156,6 @@
             let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
             
             element.onmousedown = dragMouseDown;
-            element.ontouchstart = touchStart;
             
             function dragMouseDown(e) {
                 e.preventDefault();
@@ -361,15 +163,6 @@
                 pos4 = e.clientY;
                 document.onmouseup = closeDragElement;
                 document.onmousemove = elementDrag;
-                element.style.cursor = 'grabbing';
-            }
-            
-            function touchStart(e) {
-                const touch = e.touches[0];
-                pos3 = touch.clientX;
-                pos4 = touch.clientY;
-                document.ontouchend = closeDragElement;
-                document.ontouchmove = touchMove;
             }
             
             function elementDrag(e) {
@@ -378,78 +171,50 @@
                 pos2 = pos4 - e.clientY;
                 pos3 = e.clientX;
                 pos4 = e.clientY;
+                
+                // Оновлюємо позицію
                 element.style.top = (element.offsetTop - pos2) + "px";
                 element.style.left = (element.offsetLeft - pos1) + "px";
-                checkSnap(element);
-            }
-            
-            function touchMove(e) {
-                const touch = e.touches[0];
-                pos1 = pos3 - touch.clientX;
-                pos2 = pos4 - touch.clientY;
-                pos3 = touch.clientX;
-                pos4 = touch.clientY;
-                element.style.top = (element.offsetTop - pos2) + "px";
-                element.style.left = (element.offsetLeft - pos1) + "px";
-                checkSnap(element);
             }
             
             function closeDragElement() {
                 document.onmouseup = null;
                 document.onmousemove = null;
-                document.ontouchend = null;
-                document.ontouchmove = null;
-                element.style.cursor = 'grab';
             }
         }
 
         function divideShape(parts) {
-            const shapes = document.querySelectorAll('.manipulative');
-            if (shapes.length === 0) {
-                showVisualFeedback('Спочатку додай фігуру!', 200, 200);
+            if (!currentShape) {
+                alert('Спочатку додай фігуру!');
                 return;
             }
             
-            shapes.forEach(shape => {
-                if (isShapeInZone(shape)) {
-                    createFractionPieces(shape, parts);
-                    shape.remove();
-                }
-            });
-            
-            updateStats();
-        }
-
-        function createFractionPieces(shape, parts) {
             const workspace = document.getElementById('workspace');
-            const rect = shape.getBoundingClientRect();
+            const shapeRect = currentShape.getBoundingClientRect();
             const workspaceRect = workspace.getBoundingClientRect();
             
-            const size = Math.min(rect.width, rect.height);
-            const centerX = rect.left - workspaceRect.left + size/2;
-            const centerY = rect.top - workspaceRect.top + size/2;
+            // Видаляємо оригінальну фігуру
+            currentShape.remove();
             
+            // Створюємо частини
             for (let i = 0; i < parts; i++) {
                 const piece = document.createElement('div');
-                piece.className = 'fraction-piece';
-                piece.style.width = (size * 0.8) + 'px';
-                piece.style.height = (size * 0.8) + 'px';
-                piece.style.background = fractionColors[i % fractionColors.length];
-                piece.style.borderRadius = shape.classList.contains('circle') ? '50%' : '15px';
-                piece.innerHTML = `<span>${i+1}/${parts}</span>`;
+                piece.className = 'piece';
+                piece.textContent = `1/${parts}`;
                 
-                // Розміщуємо частини по колу
+                // Розташовуємо частини по колу
                 const angle = (i * 2 * Math.PI) / parts;
-                const radius = size * 1.2;
-                const left = centerX + radius * Math.cos(angle) - size*0.4;
-                const top = centerY + radius * Math.sin(angle) - size*0.4;
+                const radius = 80;
+                const centerX = shapeRect.left - workspaceRect.left + 50;
+                const centerY = shapeRect.top - workspaceRect.top + 50;
                 
-                piece.style.left = left + 'px';
-                piece.style.top = top + 'px';
+                piece.style.left = (centerX + radius * Math.cos(angle) - 40) + 'px';
+                piece.style.top = (centerY + radius * Math.sin(angle) - 40) + 'px';
                 
-                piece.dataset.fraction = `${i+1}/${parts}`;
+                // Робимо перетягуваним
                 makeDraggable(piece);
                 
+                // Додаємо можливість видаляти кліком
                 piece.addEventListener('click', function() {
                     this.remove();
                     updateStats();
@@ -458,108 +223,46 @@
                 workspace.appendChild(piece);
             }
             
-            showVisualFeedback(`Розрізано на ${parts} частин!`, centerX, centerY);
+            score += 5;
+            updateStats();
         }
 
-        function checkSnap(element) {
-            const zones = document.querySelectorAll('.snap-zone');
-            let snapped = false;
+        function newProblem() {
+            const problems = [
+                "Створи дріб 1/2 (розріж фігуру на 2 частини)",
+                "Створи дріб 1/4 (розріж фігуру на 4 частини)", 
+                "Покажи, як виглядає половина",
+                "Створи 3 частини з 4 (3/4)"
+            ];
             
-            zones.forEach(zone => {
-                if (isElementOverlapping(element, zone)) {
-                    zone.classList.add('success');
-                    snapped = true;
-                    
-                    if (element.classList.contains('fraction-piece')) {
-                        const fraction = element.dataset.fraction;
-                        showVisualFeedback(`Дріб ${fraction} додано!`, 
-                            element.offsetLeft, element.offsetTop);
-                    }
-                } else {
-                    zone.classList.remove('success');
-                }
-            });
-            
-            return snapped;
-        }
-
-        function isElementOverlapping(el1, el2) {
-            const rect1 = el1.getBoundingClientRect();
-            const rect2 = el2.getBoundingClientRect();
-            
-            return !(rect1.right < rect2.left || 
-                    rect1.left > rect2.right || 
-                    rect1.bottom < rect2.top || 
-                    rect1.top > rect2.bottom);
-        }
-
-        function isShapeInZone(shape) {
-            const zone = document.getElementById('wholeZone');
-            return isElementOverlapping(shape, zone);
-        }
-
-        function updateStats() {
-            const pieces = document.querySelectorAll('.fraction-piece');
-            const totalPieces = pieces.length;
-            
-            document.getElementById('totalPieces').textContent = totalPieces;
-            document.getElementById('score').textContent = score;
-            
-            // Розрахунок поточного дробу
-            if (pieces.length > 0) {
-                const firstPiece = pieces[0];
-                const fraction = firstPiece.dataset.fraction;
-                const [current, total] = fraction.split('/');
-                document.getElementById('currentFraction').textContent = 
-                    `${pieces.length}/${total}`;
-            } else {
-                document.getElementById('currentFraction').textContent = '0/1';
-            }
-        }
-
-        function showVisualFeedback(text, x, y) {
-            const feedback = document.createElement('div');
-            feedback.className = 'visual-feedback';
-            feedback.textContent = text;
-            feedback.style.left = x + 'px';
-            feedback.style.top = y + 'px';
-            feedback.style.color = fractionColors[Math.floor(Math.random() * fractionColors.length)];
-            
-            document.getElementById('workspace').appendChild(feedback);
-            
-            setTimeout(() => {
-                feedback.remove();
-            }, 1000);
+            const randomProblem = problems[Math.floor(Math.random() * problems.length)];
+            document.getElementById('problem').textContent = randomProblem;
         }
 
         function clearWorkspace() {
             const workspace = document.getElementById('workspace');
-            const manipulatives = workspace.querySelectorAll('.manipulative, .fraction-piece');
-            manipulatives.forEach(el => el.remove());
+            workspace.innerHTML = '';
+            currentShape = null;
             updateStats();
-            showVisualFeedback('Очищено!', 300, 200);
         }
 
-        function createFractionProblem() {
-            const problems = [
-                { question: "Створи дріб 3/4", target: "3/4" },
-                { question: "Покажи половину (1/2)", target: "1/2" },
-                { question: "Зроби три чверті", target: "3/4" },
-                { question: "Покажи одну третину", target: "1/3" }
-            ];
+        function updateStats() {
+            const pieces = document.querySelectorAll('.piece');
+            document.getElementById('pieceCount').textContent = pieces.length;
+            document.getElementById('score').textContent = score;
             
-            currentProblem = problems[Math.floor(Math.random() * problems.length)];
-            showVisualFeedback(currentProblem.question, 300, 100);
+            if (pieces.length > 0) {
+                const firstPiece = pieces[0];
+                const fractionText = firstPiece.textContent;
+                const denominator = fractionText.split('/')[1];
+                document.getElementById('fraction').textContent = `${pieces.length}/${denominator}`;
+            } else {
+                document.getElementById('fraction').textContent = '0/1';
+            }
         }
 
-        function showHint() {
-            showVisualFeedback('Перетягуй фігури у синю зону!', 300, 150);
-        }
-
-        // Ініціалізація
-        document.addEventListener('DOMContentLoaded', function() {
-            updateStats();
-        });
+        // Додаємо першу фігуру при завантаженні
+        window.onload = addShape;
     </script>
 </body>
 </html>
