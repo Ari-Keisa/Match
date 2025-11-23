@@ -47,15 +47,12 @@
             width: 300px;
             height: 300px;
             border-radius: 50%;
-            background-color: #ffb347;
-            border: 3px solid #e68a00;
             overflow: hidden;
+            background: tan;
         }
 
         .piece {
             position: absolute;
-            width: 100%;
-            height: 100%;
             cursor: pointer;
             transition: opacity 0.3s;
         }
@@ -75,6 +72,7 @@
             pointer-events: none;
             display: none;
             z-index: 10;
+            transform-origin: 0 0;
         }
 
         .fraction-display {
@@ -165,14 +163,16 @@
         const cutMyselfContainer = document.getElementById('cut-myself-container');
         const showMeContainer = document.getElementById('show-me-container');
         
-        // Переменные состояния для каждого торта
-        const cakeState = {
-            1: { pieces: 1, eaten: 0, cuts: [] },
-            2: { pieces: 1, eaten: 0 }
-        };
+        // Состояние для первого торта (режим "Я сам поріжу!")
+        let cake1Pieces = [createWholeCakePiece()];
+        let cake1Eaten = 0;
+
+        // Состояние для второго торта (режим "Покажіть мені!")
+        let cake2Pieces = 1;
+        let cake2Eaten = 0;
 
         // Инициализация
-        createCakePieces(1, 1);
+        renderCake1();
         createCakePieces(2, 1);
 
         // Обработчики кнопок режимов
@@ -186,101 +186,120 @@
             cutMyselfContainer.classList.add('hidden');
         });
 
-        // Функция создания кусочков торта
+        // Функции для первого торта (режим "Я сам поріжу!")
+        function createWholeCakePiece() {
+            return {
+                id: 0,
+                points: [
+                    { x: 0, y: 0 },
+                    { x: 300, y: 0 },
+                    { x: 300, y: 300 },
+                    { x: 0, y: 300 }
+                ],
+                eaten: false,
+                color: '#ffb347'
+            };
+        }
+
+        function renderCake1() {
+            const container = document.getElementById('cake-1');
+            container.innerHTML = '<div class="cut-line" id="cut-line-1"></div>';
+            
+            cake1Pieces.forEach((piece, index) => {
+                if (!piece.eaten) {
+                    const pieceDiv = document.createElement('div');
+                    pieceDiv.className = 'piece';
+                    pieceDiv.dataset.index = index;
+                    
+                    // Создаем полигон для кусочка
+                    const points = piece.points.map(p => `${p.x}px ${p.y}px`).join(', ');
+                    pieceDiv.style.clipPath = `polygon(${points})`;
+                    pieceDiv.style.width = '300px';
+                    pieceDiv.style.height = '300px';
+                    pieceDiv.style.backgroundColor = piece.color;
+                    
+                    pieceDiv.addEventListener('click', function() {
+                        eatPiece1(index);
+                    });
+                    
+                    container.appendChild(pieceDiv);
+                }
+            });
+            
+            updateFractionDisplay1();
+            setupCuttingHandlers(container);
+        }
+
+        function eatPiece1(index) {
+            if (!cake1Pieces[index].eaten) {
+                cake1Pieces[index].eaten = true;
+                cake1Eaten++;
+                renderCake1();
+            }
+        }
+
+        function updateFractionDisplay1() {
+            const total = cake1Pieces.length;
+            const remaining = total - cake1Eaten;
+            const percentage = Math.round((remaining / total) * 100);
+            document.getElementById('fraction-display-1').textContent = 
+                `Залишилось: ${remaining}/${total} (${percentage}%)`;
+        }
+
+        // Функции для второго торта (режим "Покажіть мені!")
         function createCakePieces(cakeId, pieces) {
             const container = document.getElementById(`cake-${cakeId}`);
+            container.innerHTML = '';
             
-            // Очищаем только кусочки
-            const piecesToRemove = container.querySelectorAll('.piece');
-            piecesToRemove.forEach(piece => piece.remove());
+            const angle = 360 / pieces;
             
-            if (cakeId === 1 && pieces === 1) {
-                // Цельный торт
+            for (let i = 0; i < pieces; i++) {
                 const piece = document.createElement('div');
                 piece.className = 'piece';
-                piece.style.backgroundColor = '#ffb347';
-                piece.style.borderRadius = '50%';
+                piece.dataset.index = i;
+                
+                const startAngle = i * angle;
+                const endAngle = (i + 1) * angle;
+                
+                const clipPath = createClipPath(startAngle, endAngle);
+                piece.style.clipPath = clipPath;
+                piece.style.webkitClipPath = clipPath;
                 piece.style.width = '100%';
                 piece.style.height = '100%';
-                piece.addEventListener('click', function() {
-                    eatPiece(cakeId, 0);
-                });
-                container.appendChild(piece);
-            } else if (cakeId === 1) {
-                // Для режима "Я сам поріжу!" - создаем кусочки на основе разрезов
-                createPiecesFromCuts(cakeId, container);
-            } else {
-                // Для режима "Покажіть мені!" - создаем равные сегменты
-                createEqualSegments(cakeId, container, pieces);
-            }
-            
-            cakeState[cakeId].pieces = pieces;
-            cakeState[cakeId].eaten = 0;
-            updateFractionDisplay(cakeId);
-            
-            // Для первого режима добавляем обработчики рисования линий
-            if (cakeId === 1) {
-                setupCuttingHandlers(container);
-            }
-        }
-
-        // Создание равных сегментов (для второго режима)
-        function createEqualSegments(cakeId, container, pieces) {
-            const angle = 360 / pieces;
-            
-            for (let i = 0; i < pieces; i++) {
-                const piece = document.createElement('div');
-                piece.className = 'piece';
-                piece.dataset.index = i;
-                
-                const startAngle = i * angle;
-                const endAngle = (i + 1) * angle;
-                
-                const clipPath = createClipPath(startAngle, endAngle);
-                piece.style.clipPath = clipPath;
-                piece.style.webkitClipPath = clipPath;
-                
                 piece.style.backgroundColor = getPieceColor(i, pieces);
                 
                 piece.addEventListener('click', function() {
-                    eatPiece(cakeId, i);
+                    eatPiece2(i);
                 });
                 
                 container.appendChild(piece);
             }
-        }
-
-        // Создание кусочков на основе разрезов (для первого режима)
-        function createPiecesFromCuts(cakeId, container) {
-            // Пока просто создаем равные сегменты для демонстрации
-            const pieces = cakeState[cakeId].pieces;
-            const angle = 360 / pieces;
             
-            for (let i = 0; i < pieces; i++) {
-                const piece = document.createElement('div');
-                piece.className = 'piece';
-                piece.dataset.index = i;
-                
-                const startAngle = i * angle;
-                const endAngle = (i + 1) * angle;
-                
-                const clipPath = createClipPath(startAngle, endAngle);
-                piece.style.clipPath = clipPath;
-                piece.style.webkitClipPath = clipPath;
-                
-                piece.style.backgroundColor = getPieceColor(i, pieces);
-                
-                piece.addEventListener('click', function() {
-                    eatPiece(cakeId, i);
-                });
-                
-                container.appendChild(piece);
+            cake2Pieces = pieces;
+            cake2Eaten = 0;
+            updateFractionDisplay2();
+        }
+
+        function eatPiece2(pieceIndex) {
+            cake2Eaten++;
+            updateFractionDisplay2();
+            
+            // Визуально "съедаем" кусочек
+            const pieces = document.querySelectorAll('#cake-2 .piece');
+            if (pieces[pieceIndex]) {
+                pieces[pieceIndex].classList.add('eaten');
             }
         }
 
-        // Функция создания clip-path для сегмента круга
+        function updateFractionDisplay2() {
+            const remaining = cake2Pieces - cake2Eaten;
+            const percentage = Math.round((remaining / cake2Pieces) * 100);
+            document.getElementById('fraction-display-2').textContent = 
+                `Залишилось: ${remaining}/${cake2Pieces} (${percentage}%)`;
+        }
+
+        // Общие функции
         function createClipPath(startAngle, endAngle) {
-            const center = '50% 50%';
             const startRad = (startAngle - 90) * Math.PI / 180;
             const endRad = (endAngle - 90) * Math.PI / 180;
             
@@ -294,46 +313,23 @@
             return `path('M 50 50 L ${x1} ${y1} A 50 50 0 ${largeArc} 1 ${x2} ${y2} Z')`;
         }
 
-        // Функция для получения цвета кусочка
         function getPieceColor(index, total) {
             const baseColors = ['#ffb347', '#ff7eb9', '#7afcff', '#feff9c', '#fff740', '#c5f97c'];
             return baseColors[index % baseColors.length];
         }
 
-        // Функция "съедания" кусочка
-        function eatPiece(cakeId, pieceIndex) {
-            const pieces = document.querySelectorAll(`#cake-${cakeId} .piece`);
-            if (pieces[pieceIndex]) {
-                const piece = pieces[pieceIndex];
-                if (!piece.classList.contains('eaten')) {
-                    piece.classList.add('eaten');
-                    cakeState[cakeId].eaten++;
-                    updateFractionDisplay(cakeId);
-                }
-            }
-        }
-
-        // Функция обновления отображения дроби
-        function updateFractionDisplay(cakeId) {
-            const state = cakeState[cakeId];
-            const remaining = state.pieces - state.eaten;
-            const percentage = Math.round((remaining / state.pieces) * 100);
-            
-            const display = document.getElementById(`fraction-display-${cakeId}`);
-            display.textContent = `Залишилось: ${remaining}/${state.pieces} (${percentage}%)`;
-        }
-
-        // Функция разрезания торта (для второго режима)
         function cutCake(pieces, cakeId) {
             createCakePieces(cakeId, pieces);
         }
 
-        // Функция сброса торта
         function resetCake(cakeId) {
             if (cakeId === 1) {
-                cakeState[1].cuts = [];
+                cake1Pieces = [createWholeCakePiece()];
+                cake1Eaten = 0;
+                renderCake1();
+            } else {
+                createCakePieces(2, 1);
             }
-            createCakePieces(cakeId, 1);
         }
 
         // Обработчики для рисования линий разреза (первый режим)
@@ -347,7 +343,6 @@
             container.addEventListener('mouseup', endCut);
             container.addEventListener('mouseleave', endCut);
 
-            // Для touch устройств
             container.addEventListener('touchstart', function(e) {
                 e.preventDefault();
                 const touch = e.touches[0];
@@ -364,15 +359,10 @@
                 const rect = container.getBoundingClientRect();
                 endX = touch.clientX - rect.left;
                 endY = touch.clientY - rect.top;
-                
                 drawCutLine(startX, startY, endX, endY);
             });
 
-            container.addEventListener('touchend', function(e) {
-                if (!isDrawing) return;
-                e.preventDefault();
-                endCut();
-            });
+            container.addEventListener('touchend', endCut);
 
             function startCut(e) {
                 const rect = container.getBoundingClientRect();
@@ -383,20 +373,16 @@
 
             function drawCut(e) {
                 if (!isDrawing) return;
-                
                 const rect = container.getBoundingClientRect();
                 endX = e.clientX - rect.left;
                 endY = e.clientY - rect.top;
-                
                 drawCutLine(startX, startY, endX, endY);
             }
 
             function drawCutLine(fromX, fromY, toX, toY) {
-                // Вычисляем длину и угол линии
                 const length = Math.sqrt(Math.pow(toX - fromX, 2) + Math.pow(toY - fromY, 2));
-                const angle = Math.atan2(toY - fromY, toX - fromX) * 180 / Math.PI;
+                const angle = Math.atan2(toY - fromY, toX - fromX);
                 
-                // Позиционируем линию
                 cutLine.style.width = length + 'px';
                 cutLine.style.left = fromX + 'px';
                 cutLine.style.top = fromY + 'px';
@@ -406,19 +392,40 @@
 
             function endCut() {
                 if (!isDrawing) return;
-                
                 isDrawing = false;
                 cutLine.style.display = 'none';
                 
-                // Сохраняем разрез и увеличиваем количество кусочков
-                if (cakeState[1].pieces < 12) {
-                    cakeState[1].cuts.push({
-                        startX, startY, endX, endY
-                    });
-                    
-                    const newPieces = cakeState[1].pieces + 1;
-                    createCakePieces(1, newPieces);
+                // Просто увеличиваем количество кусочков для демонстрации
+                if (cake1Pieces.length < 8) {
+                    // В реальной реализации здесь была бы сложная логика разрезания полигонов
+                    cake1Pieces = [];
+                    const newPiecesCount = cake1Pieces.length + 2;
+                    for (let i = 0; i < newPiecesCount; i++) {
+                        cake1Pieces.push({
+                            id: i,
+                            points: generateRandomPiecePoints(newPiecesCount, i),
+                            eaten: false,
+                            color: getPieceColor(i, newPiecesCount)
+                        });
+                    }
+                    renderCake1();
                 }
+            }
+
+            function generateRandomPiecePoints(totalPieces, pieceIndex) {
+                // Упрощенная генерация случайных кусочков для демонстрации
+                const angle = 360 / totalPieces;
+                const startAngle = pieceIndex * angle;
+                const endAngle = (pieceIndex + 1) * angle;
+                
+                const startRad = (startAngle - 90) * Math.PI / 180;
+                const endRad = (endAngle - 90) * Math.PI / 180;
+                
+                return [
+                    { x: 150, y: 150 },
+                    { x: 150 + 150 * Math.cos(startRad), y: 150 + 150 * Math.sin(startRad) },
+                    { x: 150 + 150 * Math.cos(endRad), y: 150 + 150 * Math.sin(endRad) }
+                ];
             }
         }
     </script>
