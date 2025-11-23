@@ -56,14 +56,14 @@
             background-color: #4CAF50;
             border: none;
             color: white;
-            padding: 12px 24px;
+            padding: 10px 15px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 16px;
-            margin: 5px;
+            font-size: 14px;
+            margin: 3px;
             cursor: pointer;
-            border-radius: 8px;
+            border-radius: 6px;
             transition: background-color 0.3s;
         }
 
@@ -73,6 +73,8 @@
 
         .reset-btn {
             background-color: #ff6b6b;
+            padding: 12px 24px;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -87,13 +89,16 @@
     
     <div class="cut-controls">
         <p>Розрізати торт на:</p>
-        <button onclick="cutCake(1)">Цілий торт</button>
-        <button onclick="cutCake(2)">2 частини</button>
-        <button onclick="cutCake(3)">3 частини</button>
-        <button onclick="cutCake(4)">4 частини</button>
-        <button onclick="cutCake(6)">6 частин</button>
-        <button onclick="cutCake(8)">8 частин</button>
-        <button onclick="cutCake(12)">12 частин</button>
+        <button onclick="cutCake(1)">1</button>
+        <button onclick="cutCake(2)">2</button>
+        <button onclick="cutCake(3)">3</button>
+        <button onclick="cutCake(4)">4</button>
+        <button onclick="cutCake(5)">5</button>
+        <button onclick="cutCake(6)">6</button>
+        <button onclick="cutCake(7)">7</button>
+        <button onclick="cutCake(8)">8</button>
+        <button onclick="cutCake(9)">9</button>
+        <button onclick="cutCake(10)">10</button>
     </div>
     
     <button class="reset-btn" onclick="resetCake()">Верніть мені торт</button>
@@ -109,51 +114,35 @@
             const container = document.getElementById('cake');
             container.innerHTML = '';
             
-            // Завжди скидаємо прозорість контейнера
-            container.style.opacity = '1';
-            container.style.background = '#ffb347';
-            container.style.border = '3px solid #e68a00';
+            // Скидаємо всі стилі
+            container.style.background = 'none';
+            container.style.border = 'none';
             
-            if (pieces === 1) {
-                // Цілий торт - просто круг
-                container.onclick = function() {
-                    if (!container.classList.contains('eaten')) {
-                        container.classList.add('eaten');
-                        eatenPieces = 1;
+            const angle = 360 / pieces;
+            
+            for (let i = 0; i < pieces; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'piece';
+                
+                // Створюємо сегмент круга
+                const startAngle = i * angle;
+                const endAngle = (i + 1) * angle;
+                
+                const clipPath = createClipPath(startAngle, endAngle);
+                piece.style.clipPath = clipPath;
+                piece.style.webkitClipPath = clipPath;
+                
+                piece.style.backgroundColor = getPieceColor(i, pieces);
+                
+                piece.onclick = function() {
+                    if (!piece.classList.contains('eaten')) {
+                        piece.classList.add('eaten');
+                        eatenPieces++;
                         updateFractionDisplay();
                     }
                 };
-            } else {
-                // Розрізаний торт - сегменти
-                container.style.background = 'none';
-                container.style.border = 'none';
                 
-                const angle = 360 / pieces;
-                
-                for (let i = 0; i < pieces; i++) {
-                    const piece = document.createElement('div');
-                    piece.className = 'piece';
-                    
-                    // Створюємо сегмент круга
-                    const startAngle = i * angle;
-                    const endAngle = (i + 1) * angle;
-                    
-                    const clipPath = createClipPath(startAngle, endAngle);
-                    piece.style.clipPath = clipPath;
-                    piece.style.webkitClipPath = clipPath;
-                    
-                    piece.style.backgroundColor = getPieceColor(i, pieces);
-                    
-                    piece.onclick = function() {
-                        if (!piece.classList.contains('eaten')) {
-                            piece.classList.add('eaten');
-                            eatenPieces++;
-                            updateFractionDisplay();
-                        }
-                    };
-                    
-                    container.appendChild(piece);
-                }
+                container.appendChild(piece);
             }
             
             totalPieces = pieces;
@@ -179,7 +168,9 @@
             const colors = [
                 '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', 
                 '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F', 
-                '#BB8FCE', '#85C1E9', '#F8C471', '#82E0AA'
+                '#BB8FCE', '#85C1E9', '#F8C471', '#82E0AA',
+                '#FF9999', '#99FF99', '#9999FF', '#FFFF99',
+                '#FF99FF', '#99FFFF', '#FFB366', '#66FFB3'
             ];
             return colors[index % colors.length];
         }
@@ -189,8 +180,6 @@
         }
 
         function resetCake() {
-            const container = document.getElementById('cake');
-            container.classList.remove('eaten');
             createCake(1);
         }
 
