@@ -56,8 +56,12 @@
             cursor: pointer;
             transition: opacity 0.3s;
             border-radius: 50%;
-            clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 50% 100%);
             transform-origin: center;
+        }
+
+        .whole-cake {
+            background: linear-gradient(45deg, #ffb347, #ffcc33);
+            border: 3px solid #e68a00;
         }
 
         .piece:hover {
@@ -216,22 +220,42 @@
                 container.appendChild(cutLine);
             }
             
-            const angle = 360 / pieces;
-            
-            for (let i = 0; i < pieces; i++) {
+            if (pieces === 1) {
+                // Цельный торт
                 const piece = document.createElement('div');
-                piece.className = 'piece';
-                piece.dataset.index = i;
-                
-                // Поворачиваем кусочек
-                piece.style.transform = `rotate(${i * angle}deg)`;
-                piece.style.backgroundColor = getPieceColor(i, pieces);
+                piece.className = 'piece whole-cake';
+                piece.dataset.index = 0;
                 
                 piece.addEventListener('click', function() {
-                    eatPiece(cakeId, i);
+                    eatPiece(cakeId, 0);
                 });
                 
                 container.appendChild(piece);
+            } else {
+                // Разрезанный торт
+                const angle = 360 / pieces;
+                
+                for (let i = 0; i < pieces; i++) {
+                    const piece = document.createElement('div');
+                    piece.className = 'piece';
+                    piece.dataset.index = i;
+                    
+                    // Создаем клип-пат для сегмента круга
+                    const startAngle = i * angle;
+                    const endAngle = (i + 1) * angle;
+                    
+                    const clipPath = createClipPath(startAngle, endAngle);
+                    piece.style.clipPath = clipPath;
+                    piece.style.webkitClipPath = clipPath;
+                    
+                    piece.style.backgroundColor = getPieceColor(i, pieces);
+                    
+                    piece.addEventListener('click', function() {
+                        eatPiece(cakeId, i);
+                    });
+                    
+                    container.appendChild(piece);
+                }
             }
             
             if (cakeId === 1) {
@@ -246,10 +270,29 @@
             updateFractionDisplay(cakeId);
         }
 
+        // Функция создания clip-path для сегмента круга
+        function createClipPath(startAngle, endAngle) {
+            const startRad = (startAngle - 90) * Math.PI / 180;
+            const endRad = (endAngle - 90) * Math.PI / 180;
+            
+            const x1 = 50 + 50 * Math.cos(startRad);
+            const y1 = 50 + 50 * Math.sin(startRad);
+            const x2 = 50 + 50 * Math.cos(endRad);
+            const y2 = 50 + 50 * Math.sin(endRad);
+            
+            const largeArc = endAngle - startAngle <= 180 ? 0 : 1;
+            
+            return `path('M 50 50 L ${x1} ${y1} A 50 50 0 ${largeArc} 1 ${x2} ${y2} Z')`;
+        }
+
         // Функция для получения цвета кусочка
         function getPieceColor(index, total) {
-            const baseColors = ['#ffb347', '#ff7eb9', '#7afcff', '#feff9c', '#fff740', '#c5f97c'];
-            return baseColors[index % baseColors.length];
+            const brightColors = [
+                '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', 
+                '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
+                '#F8C471', '#82E0AA'
+            ];
+            return brightColors[index % brightColors.length];
         }
 
         // Функция "съедания" кусочка
@@ -299,7 +342,7 @@
             createCakePieces(cakeId, 1);
         }
 
-        // Обработчики для рисования линий разреза (первый режим)
+        // Обработчики для рисования линий разреза (перший режим)
         function setupCuttingHandlers(container) {
             const cutLine = document.getElementById('cut-line-1');
             let isDrawing = false;
