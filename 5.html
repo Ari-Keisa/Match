@@ -109,21 +109,22 @@
             const container = document.getElementById('cake');
             container.innerHTML = '';
             
+            // Завжди скидаємо прозорість контейнера
+            container.style.opacity = '1';
+            container.style.background = '#ffb347';
+            container.style.border = '3px solid #e68a00';
+            
             if (pieces === 1) {
-                // Цілий торт
-                container.style.background = '#ffb347';
-                container.style.border = '3px solid #e68a00';
-                
-                // Додаємо обробник кліку на весь торт
+                // Цілий торт - просто круг
                 container.onclick = function() {
-                    if (pieces === 1) {
+                    if (!container.classList.contains('eaten')) {
+                        container.classList.add('eaten');
                         eatenPieces = 1;
                         updateFractionDisplay();
-                        container.style.opacity = '0.3';
                     }
                 };
             } else {
-                // Розрізаний торт
+                // Розрізаний торт - сегменти
                 container.style.background = 'none';
                 container.style.border = 'none';
                 
@@ -188,6 +189,8 @@
         }
 
         function resetCake() {
+            const container = document.getElementById('cake');
+            container.classList.remove('eaten');
             createCake(1);
         }
 
