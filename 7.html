@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Середнє арифметичне - інтерактивний тренажер</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 25px;
+            overflow: hidden;
+        }
+        h1 {
+            color: #2c5aa0;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .level-indicator {
+            background-color: #e6f2ff;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #2c5aa0;
+        }
+        .task-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #f9fbff;
+        }
+        .section-title {
+            color: #2c5aa0;
+            border-bottom: 2px solid #d0e2ff;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        .task {
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .question {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .option {
+            padding: 12px 15px;
+            background-color: #f0f7ff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .option:hover {
+            background-color: #e1efff;
+        }
+        .option.selected {
+            border-color: #2c5aa0;
+            background-color: #d6e8ff;
+        }
+        .option.correct {
+            border-color: #28a745;
+            background-color: #d4edda;
+        }
+        .option.incorrect {
+            border-color: #dc3545;
+            background-color: #f8d7da;
+        }
+        .visualization {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: white;
+            border-radius: 10px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .number-block {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4dabf5, #2c5aa0);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.2em;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        .average-display {
+            background-color: #e6f7ff;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 10px 0;
+            border: 2px dashed #4dabf5;
+        }
+        .formula {
+            font-family: 'Courier New', monospace;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .input-task {
+            margin-bottom: 15px;
+        }
+        .input-field {
+            padding: 10px 15px;
+            border: 2px solid #d0e2ff;
+            border-radius: 8px;
+            font-size: 1em;
+            width: 100%;
+            max-width: 300px;
+        }
+        .input-field:focus {
+            border-color: #2c5aa0;
+            outline: none;
+        }
+        .check-btn, .next-btn {
+            background-color: #2c5aa0;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        .check-btn:hover, .next-btn:hover {
+            background-color: #1e3d6f;
+        }
+        .feedback {
+            margin-top: 15px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .feedback.correct {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .feedback.incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .hidden {
+            display: none;
+        }
+        .progress-bar {
+            height: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress {
+            height: 100%;
+            background-color: #2c5aa0;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        .results {
+            text-align: center;
+            padding: 20px;
+        }
+        .results h2 {
+            color: #2c5aa0;
+        }
+        .score {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c5aa0;
+            margin: 20px 0;
+        }
+        .restart-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .restart-btn:hover {
+            background-color: #1e7e34;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            .number-block {
+                width: 50px;
+                height: 50px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Середнє арифметичне - інтерактивний тренажер</h1>
+        <div class="subtitle">Рівень 1 (початковий) - для інклюзивних дітей</div>
+        
+        <div class="level-indicator">РІВЕНЬ 1 (ПОЧАТКОВИЙ)</div>
+        
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        
+        <!-- Тестові завдання -->
+        <div class="task-section" id="test-tasks">
+            <h2 class="section-title">Тестові завдання (вибери правильну відповідь)</h2>
+            
+            <div class="task" id="task1">
+                <div class="question">1. Як знайти середнє арифметичне чисел?</div>
+                <div class="visualization">
+                    <div class="average-display">
+                        <div class="formula">Середнє = (число₁ + число₂ + ... + числоₙ) ÷ n</div>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option" data-value="a">а) знайти їх суму</div>
+                    <div class="option" data-value="b">б) знайти їх різницю</div>
+                    <div class="option" data-value="c">в) суму поділити на кількість</div>
+                </div>
+                <button class="check-btn" onclick="checkAnswer(1, 'c')">Перевірити</button>
+                <div class="feedback hidden" id="feedback1"></div>
+            </div>
+            
+            <div class="task hidden" id="task2">
+                <div class="question">2. Середнє арифметичне чисел 5 і 7 дорівнює:</div>
+                <div class="visualization">
+                    <div class="number-block">5</div>
+                    <div class="number-block">7</div>
+                    <div style="display: flex; align-items: center; font-size: 1.5em;">→</div>
+                    <div class="average-display">
+                        <div class="formula">(5 + 7) ÷ 2 = 12 ÷ 2 = 6</div>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option" data-value="a">а) 12</div>
+                    <div class="option" data-value="b">б) 6</div>
+                    <div class="option" data-value="c">в) 5</div>
+                </div>
+                <button class="check-btn" onclick="checkAnswer(2, 'b')">Перевірити</button>
+                <div class="feedback hidden" id="feedback2"></div>
+            </div>
+            
+            <div class="task hidden" id="task3">
+                <div class="question">3. У трьох дітей 3, 4 та 5 цукерок. Скільки цукерок у кожного в середньому?</div>
+                <div class="visualization">
+                    <div class="number-block">3</div>
+                    <div class="number-block">4</div>
+                    <div class="number-block">5</div>
+                    <div style="display: flex; align-items: center; font-size: 1.5em;">→</div>
+                    <div class="average-display">
+                        <div class="formula">(3 + 4 + 5) ÷ 3 = 12 ÷ 3 = 4</div>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option" data-value="a">а) 4</div>
+                    <div class="option" data-value="b">б) 3</div>
+                    <div class="option" data-value="c">в) 5</div>
+                </div>
+                <button class="check-btn" onclick="checkAnswer(3, 'a')">Перевірити</button>
+                <div class="feedback hidden" id="feedback3"></div>
+            </div>
+            
+            <div class="task hidden" id="task4">
+                <div class="question">4. Якщо середнє арифметичне двох чисел дорівнює 10, то їхня сума:</div>
+                <div class="visualization">
+                    <div class="average-display">
+                        <div class="formula">Середнє = Сума ÷ Кількість</div>
+                        <div class="formula">10 = Сума ÷ 2</div>
+                        <div class="formula">Сума = 10 × 2 = 20</div>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option" data-value="a">а) 5</div>
+                    <div class="option" data-value="b">б) 20</div>
+                    <div class="option" data-value="c">в) 10</div>
+                </div>
+                <button class="check-btn" onclick="checkAnswer(4, 'b')">Перевірити</button>
+                <div class="feedback hidden" id="feedback4"></div>
+            </div>
+            
+            <div class="task hidden" id="task5">
+                <div class="question">5. Середня температура за день +15°C. Якою була сума температур за день?</div>
+                <div class="visualization">
+                    <div class="average-display">
+                        <div>Для розрахунку суми потрібно знати кількість вимірювань</div>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option" data-value="a">а) 15°C</div>
+                    <div class="option" data-value="b">б) 30°C</div>
+                    <div class="option" data-value="c">в) Неможливо визначити</div>
+                </div>
+                <button class="check-btn" onclick="checkAnswer(5, 'c')">Перевірити</button>
+                <div class="feedback hidden" id="feedback5"></div>
+            </div>
+        </div>
+        
+        <!-- Звичайні завдання -->
+        <div class="task-section hidden" id="regular-tasks">
+            <h2 class="section-title">Звичайні завдання (розв'яжи задачу)</h2>
+            
+            <div class="task" id="task6">
+                <div class="question">1. Знайди середнє арифметичне чисел: 12, 18, 24.</div>
+                <div class="visualization">
+                    <div class="number-block">12</div>
+                    <div class="number-block">18</div>
+                    <div class="number-block">24</div>
+                    <div style="display: flex; align-items: center; font-size: 1.5em;">→</div>
+                    <div class="average-display">
+                        <div class="formula">(12 + 18 + 24) ÷ 3 = ?</div>
+                    </div>
+                </div>
+                <div class="input-task">
+                    <input type="text" class="input-field" id="answer6" placeholder="Введіть вашу відповідь">
+                    <button class="check-btn" onclick="checkInputAnswer(6, ['18', '18.0', '18,0'])" data-correct="18">Перевірити</button>
+                </div>
+                <div class="feedback hidden" id="feedback6"></div>
+            </div>
+            
+            <div class="task hidden" id="task7">
+                <div class="question">2. Знайди середнє арифметичне чисел: 5, 10, 15, 20.</div>
+                <div class="visualization">
+                    <div class="number-block">5</div>
+                    <div class="number-block">10</div>
+                    <div class="number-block">15</div>
+                    <div class="number-block">20</div>
+                    <div style="display: flex; align-items: center; font-size: 1.5em;">→</div>
+                    <div class="average-display">
+                        <div class="formula">(5 + 10 + 15 + 20) ÷ 4 = ?</div>
+                    </div>
+                </div>
+                <div class="input-task">
+                    <input type="text" class="input-field" id="answer7" placeholder="Введіть вашу відповідь">
+                    <button class="check-btn" onclick="checkInputAnswer(7, ['12.5', '12,5', '12.50', '12,50', '12 5'])" data-correct="12.5">Перевірити</button>
+                </div>
+                <div class="feedback hidden" id="feedback7"></div>
+            </div>
+            
+            <div class="task hidden" id="task8">
+                <div class="question">3. Сума трьох чисел дорівнює 27. Чому дорівнює їхнє середнє арифметичне?</div>
+                <div class="visualization">
+                    <div class="average-display">
+                        <div class="formula">Сума = 27</div>
+                        <div class="formula">Кількість = 3</div>
+                        <div class="formula">Середнє = 27 ÷ 3 = ?</div>
+                    </div>
+                </div>
+                <div class="input-task">
+                    <input type="text" class="input-field" id="answer8" placeholder="Введіть вашу відповідь">
+                    <button class="check-btn" onclick="checkInputAnswer(8, ['9', '9.0', '9,0'])" data-correct="9">Перевірити</button>
+                </div>
+                <div class="feedback hidden" id="feedback8"></div>
+            </div>
+            
+            <div class="task hidden" id="task9">
+                <div class="question">4. Середній зріст двох друзів 160 см. Який їхній сумарний зріст?</div>
+                <div class="visualization">
+                    <div class="average-display">
+                        <div class="formula">Середнє = 160 см</div>
+                        <div class="formula">Кількість = 2</div>
+                        <div class="formula">Сума = 160 × 2 = ?</div>
+                    </div>
+                </div>
+                <div class="input-task">
+                    <input type="text" class="input-field" id="answer9" placeholder="Введіть вашу відповідь">
+                    <button class="check-btn" onclick="checkInputAnswer(9, ['320', '320 см', '320см', '320 сантиметрів'])" data-correct="320 см">Перевірити</button>
+                </div>
+                <div class="feedback hidden" id="feedback9"></div>
+            </div>
+            
+            <div class="task hidden" id="task10">
+                <div class="question">5. Знайди середнє арифметичне: 0, 10, 20.</div>
+                <div class="visualization">
+                    <div class="number-block">0</div>
+                    <div class="number-block">10</div>
+                    <div class="number-block">20</div>
+                    <div style="display: flex; align-items: center; font-size: 1.5em;">→</div>
+                    <div class="average-display">
+                        <div class="formula">(0 + 10 + 20) ÷ 3 = ?</div>
+                    </div>
+                </div>
+                <div class="input-task">
+                    <input type="text" class="input-field" id="answer10" placeholder="Введіть вашу відповідь">
+                    <button class="check-btn" onclick="checkInputAnswer(10, ['10', '10.0', '10,0'])" data-correct="10">Перевірити</button>
+                </div>
+                <div class="feedback hidden" id="feedback10"></div>
+            </div>
+        </div>
+        
+        <!-- Результати -->
+        <div class="task-section hidden" id="results-section">
+            <div class="results">
+                <h2>Вітаємо!</h2>
+                <p>Ви завершили всі завдання рівня 1!</p>
+                <div class="score">Ваш результат: <span id="final-score">0</span>/10</div>
+                <button class="restart-btn" onclick="restartQuiz()">Пройти знову</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTask = 1;
+        let score = 0;
+        const totalTasks = 10;
+        
+        // Ініціалізація
+        document.addEventListener('DOMContentLoaded', function() {
+            setupOptionListeners();
+        });
+        
+        // Налаштування слухачів для опцій
+        function setupOptionListeners() {
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    // Знімаємо виділення з усіх опцій у цьому завданні
+                    const parentTask = this.closest('.task');
+                    parentTask.querySelectorAll('.option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Виділяємо вибрану опцію
+                    this.classList.add('selected');
+                });
+            });
+        }
+        
+        // Перевірка тестових завдань
+        function checkAnswer(taskNumber, correctAnswer) {
+            const task = document.getElementById(`task${taskNumber}`);
+            const selectedOption = task.querySelector('.option.selected');
+            const feedback = document.getElementById(`feedback${taskNumber}`);
+            
+            if (!selectedOption) {
+                feedback.textContent = "Будь ласка, виберіть відповідь!";
+                feedback.className = "feedback incorrect";
+                feedback.classList.remove("hidden");
+                return;
+            }
+            
+            const userAnswer = selectedOption.getAttribute('data-value');
+            
+            // Знімаємо можливість вибору інших варіантів
+            task.querySelectorAll('.option').forEach(option => {
+                option.style.pointerEvents = 'none';
+                
+                if (option.getAttribute('data-value') === correctAnswer) {
+                    option.classList.add('correct');
+                } else if (option.getAttribute('data-value') === userAnswer && userAnswer !== correctAnswer) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            if (userAnswer === correctAnswer) {
+                feedback.textContent = "Правильно! Молодець!";
+                feedback.className = "feedback correct";
+                score++;
+            } else {
+                feedback.textContent = "Неправильно. Правильна відповідь позначена зеленим кольором.";
+                feedback.className = "feedback incorrect";
+            }
+            
+            feedback.classList.remove("hidden");
+            
+            // Оновлюємо прогрес
+            updateProgress();
+            
+            // Показуємо кнопку "Далі"
+            const nextButton = document.createElement('button');
+            nextButton.textContent = "Далі";
+            nextButton.className = "next-btn";
+            nextButton.onclick = function() {
+                nextTask(taskNumber);
+            };
+            task.appendChild(nextButton);
+        }
+        
+        // Перевірка завдань з введенням
+        function checkInputAnswer(taskNumber, validAnswers) {
+            const inputField = document.getElementById(`answer${taskNumber}`);
+            const feedback = document.getElementById(`feedback${taskNumber}`);
+            const userAnswer = inputField.value.trim();
+            const button = document.querySelector(`#task${taskNumber} .check-btn`);
+            const correctAnswer = button.getAttribute('data-correct');
+            
+            if (!userAnswer) {
+                feedback.textContent = "Будь ласка, введіть відповідь!";
+                feedback.className = "feedback incorrect";
+                feedback.classList.remove("hidden");
+                return;
+            }
+            
+            // Нормалізуємо відповіді для порівняння
+            const normalizedUser = userAnswer
+                .replace(/\s+/g, ' ')
+                .replace(/,/g, '.')
+                .toLowerCase()
+                .trim();
+            
+            let isCorrect = false;
+            
+            // Перевіряємо всі можливі варіанти правильної відповіді
+            for (let validAnswer of validAnswers) {
+                const normalizedValid = validAnswer
+                    .replace(/\s+/g, ' ')
+                    .replace(/,/g, '.')
+                    .toLowerCase()
+                    .trim();
+                
+                if (normalizedUser === normalizedValid) {
+                    isCorrect = true;
+                    break;
+                }
+            }
+            
+            // Додаткова перевірка для числових відповідей
+            if (!isCorrect) {
+                const userNumber = parseFloat(normalizedUser.replace(/[^\d.,]/g, ''));
+                const validNumber = parseFloat(validAnswers[0].replace(/[^\d.,]/g, ''));
+                
+                if (!isNaN(userNumber) && !isNaN(validNumber) && userNumber === validNumber) {
+                    isCorrect = true;
+                }
+            }
+            
+            if (isCorrect) {
+                feedback.textContent = "Правильно! Молодець!";
+                feedback.className = "feedback correct";
+                score++;
+            } else {
+                feedback.textContent = `Неправильно. Правильна відповідь: ${correctAnswer}`;
+                feedback.className = "feedback incorrect";
+            }
+            
+            feedback.classList.remove("hidden");
+            inputField.disabled = true;
+            
+            // Оновлюємо прогрес
+            updateProgress();
+            
+            // Показуємо кнопку "Далі"
+            const nextButton = document.createElement('button');
+            nextButton.textContent = "Далі";
+            nextButton.className = "next-btn";
+            nextButton.onclick = function() {
+                nextTask(taskNumber);
+            };
+            document.getElementById(`task${taskNumber}`).appendChild(nextButton);
+        }
+        
+        // Перехід до наступного завдання
+        function nextTask(currentTaskNumber) {
+            document.getElementById(`task${currentTaskNumber}`).classList.add('hidden');
+            
+            if (currentTaskNumber < 5) {
+                // Перехід між тестовими завданнями
+                document.getElementById(`task${currentTaskNumber + 1}`).classList.remove('hidden');
+            } else if (currentTaskNumber === 5) {
+                // Перехід від тестових до звичайних завдань
+                document.getElementById('test-tasks').classList.add('hidden');
+                document.getElementById('regular-tasks').classList.remove('hidden');
+                document.getElementById('task6').classList.remove('hidden');
+            } else if (currentTaskNumber < 10) {
+                // Перехід між звичайними завданнями
+                document.getElementById(`task${currentTaskNumber + 1}`).classList.remove('hidden');
+            } else if (currentTaskNumber === 10) {
+                // Завершення - показуємо результати
+                document.getElementById('regular-tasks').classList.add('hidden');
+                document.getElementById('results-section').classList.remove('hidden');
+                document.getElementById('final-score').textContent = score;
+            }
+            
+            currentTask = currentTaskNumber + 1;
+        }
+        
+        // Оновлення прогрес-бару
+        function updateProgress() {
+            const progress = document.getElementById('progress');
+            const percentage = (currentTask / totalTasks) * 100;
+            progress.style.width = `${percentage}%`;
+        }
+        
+        // Перезапуск тесту
+        function restartQuiz() {
+            // Скидаємо всі завдання
+            for (let i = 1; i <= totalTasks; i++) {
+                const task = document.getElementById(`task${i}`);
+                task.classList.add('hidden');
+                
+                // Скидаємо опції
+                task.querySelectorAll('.option').forEach(option => {
+                    option.classList.remove('selected', 'correct', 'incorrect');
+                    option.style.pointerEvents = 'auto';
+                });
+                
+                // Скидаємо поля введення
+                const inputField = document.getElementById(`answer${i}`);
+                if (inputField) {
+                    inputField.value = '';
+                    inputField.disabled = false;
+                }
+                
+                // Скидаємо фідбек
+                const feedback = document.getElementById(`feedback${i}`);
+                feedback.classList.add('hidden');
+                
+                // Видаляємо кнопки "Далі"
+                const nextButton = task.querySelector('.next-btn');
+                if (nextButton) {
+                    nextButton.remove();
+                }
+            }
+            
+            // Показуємо перше завдання
+            document.getElementById('task1').classList.remove('hidden');
+            document.getElementById('test-tasks').classList.remove('hidden');
+            document.getElementById('regular-tasks').classList.add('hidden');
+            document.getElementById('results-section').classList.add('hidden');
+            
+            // Скидаємо рахунок і прогрес
+            currentTask = 1;
+            score = 0;
+            updateProgress();
+        }
+    </script>
+</body>
+</html>
