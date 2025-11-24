@@ -339,7 +339,7 @@
                 </div>
                 <div class="input-task">
                     <input type="text" class="input-field" id="answer6" placeholder="Введіть вашу відповідь">
-                    <button class="check-btn" onclick="checkInputAnswer(6, '12')">Перевірити</button>
+                    <button class="check-btn" onclick="checkInputAnswer(6, ['12', '12%', '12 відсотків', '12 відсотків'])" data-correct="12">Перевірити</button>
                 </div>
                 <div class="feedback hidden" id="feedback6"></div>
             </div>
@@ -354,7 +354,7 @@
                 </div>
                 <div class="input-task">
                     <input type="text" class="input-field" id="answer7" placeholder="Введіть вашу відповідь">
-                    <button class="check-btn" onclick="checkInputAnswer(7, '60%')">Перевірити</button>
+                    <button class="check-btn" onclick="checkInputAnswer(7, ['60%', '60', '60 відсотків', '60 відсотків'])" data-correct="60%">Перевірити</button>
                 </div>
                 <div class="feedback hidden" id="feedback7"></div>
             </div>
@@ -369,7 +369,7 @@
                 </div>
                 <div class="input-task">
                     <input type="text" class="input-field" id="answer8" placeholder="Введіть вашу відповідь">
-                    <button class="check-btn" onclick="checkInputAnswer(8, '12')">Перевірити</button>
+                    <button class="check-btn" onclick="checkInputAnswer(8, ['12', '12 хлопчиків', '12 хлопців', '12 учнів'])" data-correct="12">Перевірити</button>
                 </div>
                 <div class="feedback hidden" id="feedback8"></div>
             </div>
@@ -384,7 +384,7 @@
                 </div>
                 <div class="input-task">
                     <input type="text" class="input-field" id="answer9" placeholder="Введіть вашу відповідь">
-                    <button class="check-btn" onclick="checkInputAnswer(9, '47')">Перевірити</button>
+                    <button class="check-btn" onclick="checkInputAnswer(9, ['47', '47.0', '47,0', '47.00'])" data-correct="47">Перевірити</button>
                 </div>
                 <div class="feedback hidden" id="feedback9"></div>
             </div>
@@ -399,7 +399,7 @@
                 </div>
                 <div class="input-task">
                     <input type="text" class="input-field" id="answer10" placeholder="Введіть вашу відповідь">
-                    <button class="check-btn" onclick="checkInputAnswer(10, '75%')">Перевірити</button>
+                    <button class="check-btn" onclick="checkInputAnswer(10, ['75%', '75', '75 відсотків', '75 відсотків', '75 %'])" data-correct="75%">Перевірити</button>
                 </div>
                 <div class="feedback hidden" id="feedback10"></div>
             </div>
@@ -507,10 +507,12 @@
         }
         
         // Перевірка завдань з введенням
-        function checkInputAnswer(taskNumber, correctAnswer) {
+        function checkInputAnswer(taskNumber, validAnswers) {
             const inputField = document.getElementById(`answer${taskNumber}`);
             const feedback = document.getElementById(`feedback${taskNumber}`);
             const userAnswer = inputField.value.trim();
+            const button = document.querySelector(`#task${taskNumber} .check-btn`);
+            const correctAnswer = button.getAttribute('data-correct');
             
             if (!userAnswer) {
                 feedback.textContent = "Будь ласка, введіть відповідь!";
@@ -520,10 +522,39 @@
             }
             
             // Нормалізуємо відповіді для порівняння
-            const normalizedUser = userAnswer.replace(/\s/g, '').toLowerCase();
-            const normalizedCorrect = correctAnswer.replace(/\s/g, '').toLowerCase();
+            const normalizedUser = userAnswer
+                .replace(/\s+/g, ' ')
+                .replace(/,/g, '.')
+                .toLowerCase()
+                .trim();
             
-            if (normalizedUser === normalizedCorrect) {
+            let isCorrect = false;
+            
+            // Перевіряємо всі можливі варіанти правильної відповіді
+            for (let validAnswer of validAnswers) {
+                const normalizedValid = validAnswer
+                    .replace(/\s+/g, ' ')
+                    .replace(/,/g, '.')
+                    .toLowerCase()
+                    .trim();
+                
+                if (normalizedUser === normalizedValid) {
+                    isCorrect = true;
+                    break;
+                }
+            }
+            
+            // Додаткова перевірка для числових відповідей
+            if (!isCorrect) {
+                const userNumber = parseFloat(normalizedUser.replace(/[^\d.,]/g, ''));
+                const validNumber = parseFloat(validAnswers[0].replace(/[^\d.,]/g, ''));
+                
+                if (!isNaN(userNumber) && !isNaN(validNumber) && userNumber === validNumber) {
+                    isCorrect = true;
+                }
+            }
+            
+            if (isCorrect) {
                 feedback.textContent = "Правильно! Молодець!";
                 feedback.className = "feedback correct";
                 score++;
