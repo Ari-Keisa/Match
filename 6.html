@@ -403,14 +403,15 @@
                 </div>
                 <div class="feedback hidden" id="feedback10"></div>
             </div>
-            
-            <div class="task hidden" id="finish-section">
-                <div class="results">
-                    <h2>Вітаємо!</h2>
-                    <p>Ви завершили всі завдання рівня 1!</p>
-                    <div class="score">Ваш результат: <span id="final-score">0</span>/10</div>
-                    <button class="restart-btn" onclick="restartQuiz()">Пройти знову</button>
-                </div>
+        </div>
+        
+        <!-- Результати -->
+        <div class="task-section hidden" id="results-section">
+            <div class="results">
+                <h2>Вітаємо!</h2>
+                <p>Ви завершили всі завдання рівня 1!</p>
+                <div class="score">Ваш результат: <span id="final-score">0</span>/10</div>
+                <button class="restart-btn" onclick="restartQuiz()">Пройти знову</button>
             </div>
         </div>
     </div>
@@ -486,7 +487,7 @@
                 feedback.className = "feedback correct";
                 score++;
             } else {
-                feedback.textContent = "Неправильно. Спробуйте ще раз!";
+                feedback.textContent = "Неправильно. Правильна відповідь позначена зеленим кольором.";
                 feedback.className = "feedback incorrect";
             }
             
@@ -551,18 +552,21 @@
         function nextTask(currentTaskNumber) {
             document.getElementById(`task${currentTaskNumber}`).classList.add('hidden');
             
-            if (currentTaskNumber < totalTasks) {
+            if (currentTaskNumber < 5) {
+                // Перехід між тестовими завданнями
                 document.getElementById(`task${currentTaskNumber + 1}`).classList.remove('hidden');
-            }
-            
-            // Якщо закінчили тестові завдання, переходимо до звичайних
-            if (currentTaskNumber === 5) {
+            } else if (currentTaskNumber === 5) {
+                // Перехід від тестових до звичайних завдань
                 document.getElementById('test-tasks').classList.add('hidden');
                 document.getElementById('regular-tasks').classList.remove('hidden');
-            }
-            
-            // Якщо закінчили всі завдання, показуємо результати
-            if (currentTaskNumber === totalTasks) {
+                document.getElementById('task6').classList.remove('hidden');
+            } else if (currentTaskNumber < 10) {
+                // Перехід між звичайними завданнями
+                document.getElementById(`task${currentTaskNumber + 1}`).classList.remove('hidden');
+            } else if (currentTaskNumber === 10) {
+                // Завершення - показуємо результати
+                document.getElementById('regular-tasks').classList.add('hidden');
+                document.getElementById('results-section').classList.remove('hidden');
                 document.getElementById('final-score').textContent = score;
             }
             
@@ -611,6 +615,7 @@
             document.getElementById('task1').classList.remove('hidden');
             document.getElementById('test-tasks').classList.remove('hidden');
             document.getElementById('regular-tasks').classList.add('hidden');
+            document.getElementById('results-section').classList.add('hidden');
             
             // Скидаємо рахунок і прогрес
             currentTask = 1;
