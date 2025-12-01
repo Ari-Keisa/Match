@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Математична естафета для 11 класу</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2980, #26d0ce);
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #26d0ce;
+            padding-bottom: 20px;
+        }
+        
+        h1 {
+            color: #26d0ce;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            background-color: rgba(38, 208, 206, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .team-info, .timer-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .team-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .team-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .team-btn.active {
+            background-color: #26d0ce;
+            color: white;
+        }
+        
+        .team-btn:not(.active) {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .timer {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ffcc00;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+        }
+        
+        .stations-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .station {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .station:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .station.completed {
+            border-left: 5px solid #4CAF50;
+        }
+        
+        .station-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .station-title {
+            font-size: 1.5rem;
+            color: #26d0ce;
+            margin: 0;
+        }
+        
+        .station-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .status-pending {
+            background-color: #ff9800;
+            color: black;
+        }
+        
+        .status-completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .task {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+        
+        .answer-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .answer-input {
+            padding: 12px;
+            border-radius: 5px;
+            border: 2px solid rgba(38, 208, 206, 0.5);
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .answer-input:focus {
+            outline: none;
+            border-color: #26d0ce;
+        }
+        
+        .submit-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            background-color: #26d0ce;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        .submit-btn:hover {
+            background-color: #1fa8a6;
+            transform: translateY(-2px);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+        
+        .hint {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            font-style: italic;
+        }
+        
+        .results-section {
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .final-key {
+            background-color: rgba(76, 175, 80, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .team-results {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .team-result {
+            background-color: rgba(38, 208, 206, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            min-width: 200px;
+            text-align: center;
+        }
+        
+        .team-name {
+            font-size: 1.2rem;
+            color: #26d0ce;
+            margin-bottom: 10px;
+        }
+        
+        .team-score {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        .start-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .reset-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .hint-btn {
+            background-color: #ff9800;
+            color: black;
+        }
+        
+        .control-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .game-info {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .stations-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Математична Естафета 11 клас</h1>
+            <p class="subtitle">"Від похідної до інтеграла" – пройдіть 5 станцій швидше за конкурентів!</p>
+        </header>
+        
+        <div class="game-info">
+            <div class="team-info">
+                <h3>Виберіть команду:</h3>
+                <div class="team-selector">
+                    <button class="team-btn active" onclick="selectTeam(1)">Команда 1</button>
+                    <button class="team-btn" onclick="selectTeam(2)">Команда 2</button>
+                    <button class="team-btn" onclick="selectTeam(3)">Команда 3</button>
+                    <button class="team-btn" onclick="selectTeam(4)">Команда 4</button>
+                </div>
+                <div class="current-team">Активна команда: <span id="current-team-name">Команда 1</span></div>
+            </div>
+            
+            <div class="timer-container">
+                <h3>Таймер станції:</h3>
+                <div class="timer" id="timer">05:00</div>
+                <div>Станція: <span id="current-station">1/5</span></div>
+            </div>
+        </div>
+        
+        <div class="stations-container">
+            <!-- Станція 1 -->
+            <div class="station" id="station1">
+                <div class="station-header">
+                    <h3 class="station-title">Станція 1: Функціональний аналіз</h3>
+                    <span class="station-status status-pending" id="status1">Не пройдено</span>
+                </div>
+                <div class="task">
+                    <p>Дано графік другої похідної f''(x). На інтервалі (-3; 4) функція f''(x) двічі змінює знак з "+" на "-" (у точках x=-1 та x=2).</p>
+                    <p><strong>Завдання:</strong> Скільки точок перегину має функція f(x) на інтервалі (-3; 4)?</p>
+                    <div class="hint" id="hint1" style="display: none;">
+                        <strong>Підказка:</strong> Точка перегину - це точка, де друга похідна змінює знак.
+                    </div>
+                </div>
+                <div class="answer-form">
+                    <input type="text" class="answer-input" id="answer1" placeholder="Введіть відповідь (число)">
+                    <button class="submit-btn" onclick="checkAnswer(1)">Перевірити відповідь</button>
+                    <button class="hint-btn" onclick="toggleHint(1)" style="margin-top: 5px; padding: 8px;">Показати підказку</button>
+                </div>
+            </div>
+            
+            <!-- Станція 2 -->
+            <div class="station" id="station2">
+                <div class="station-header">
+                    <h3 class="station-title">Станція 2: Логарифмічний лабіринт</h3>
+                    <span class="station-status status-pending" id="status2">Не пройдено</span>
+                </div>
+                <div class="task">
+                    <p>Розв'яжіть рівняння:</p>
+                    <p style="text-align: center; font-size: 1.3rem;">log₂(x-1) + log₂(x+3) = 3</p>
+                    <p><strong>Завдання:</strong> Знайдіть корінь рівняння (врахуйте ОДЗ!).</p>
+                    <div class="hint" id="hint2" style="display: none;">
+                        <strong>Підказка:</strong> Використайте властивість суми логарифмів: logₐb + logₐc = logₐ(b·c). ОДЗ: x-1>0 та x+3>0.
+                    </div>
+                </div>
+                <div class="answer-form">
+                    <input type="text" class="answer-input" id="answer2" placeholder="Введіть відповідь (число)">
+                    <button class="submit-btn" onclick="checkAnswer(2)">Перевірити відповідь</button>
+                    <button class="hint-btn" onclick="toggleHint(2)" style="margin-top: 5px; padding: 8px;">Показати підказку</button>
+                </div>
+            </div>
+            
+            <!-- Станція 3 -->
+            <div class="station" id="station3">
+                <div class="station-header">
+                    <h3 class="station-title">Станція 3: Інтегральна миттєвість</h3>
+                    <span class="station-status status-pending" id="status3">Не пройдено</span>
+                </div>
+                <div class="task">
+                    <p>Обчисліть інтеграл:</p>
+                    <p style="text-align: center; font-size: 1.3rem;">∫<sub>-2</sub><sup>2</sup> (x⁵ · cos(x)) / (x¹⁰ + 1) dx</p>
+                    <p><strong>Завдання:</strong> Знайдіть значення інтеграла (підказка: функція непарна, межі симетричні).</p>
+                    <div class="hint" id="hint3" style="display: none;">
+                        <strong>Підказка:</strong> Для непарної функції f(-x) = -f(x) інтеграл на симетричних проміжках дорівнює 0.
+                    </div>
+                </div>
+                <div class="answer-form">
+                    <input type="text" class="answer-input" id="answer3" placeholder="Введіть відповідь (число)">
+                    <button class="submit-btn" onclick="checkAnswer(3)">Перевірити відповідь</button>
+                    <button class="hint-btn" onclick="toggleHint(3)" style="margin-top: 5px; padding: 8px;">Показати підказку</button>
+                </div>
+            </div>
+            
+            <!-- Станція 4 -->
+            <div class="station" id="station4">
+                <div class="station-header">
+                    <h3 class="station-title">Станція 4: Геометричний конструктор</h3>
+                    <span class="station-status status-pending" id="status4">Не пройдено</span>
+                </div>
+                <div class="task">
+                    <p>Дано правильну трикутну піраміду. Бічне ребро = 10 см, сторона основи = 8 см.</p>
+                    <p><strong>Завдання:</strong> Знайдіть апофему піраміди (висоту бічної грані) у см, округліть до десятих.</p>
+                    <div class="hint" id="hint4" style="display: none;">
+                        <strong>Підказка:</strong> Апофема - це висота бічної грані (рівнобедреного трикутника). Використайте теорему Піфагора: апофема² = бічне ребро² - (половина сторони основи)².
+                    </div>
+                </div>
+                <div class="answer-form">
+                    <input type="text" class="answer-input" id="answer4" placeholder="Введіть відповідь (число, наприклад 9.2)">
+                    <button class="submit-btn" onclick="checkAnswer(4)">Перевірити відповідь</button>
+                    <button class="hint-btn" onclick="toggleHint(4)" style="margin-top: 5px; padding: 8px;">Показати підказку</button>
+                </div>
+            </div>
+            
+            <!-- Станція 5 -->
+            <div class="station" id="station5">
+                <div class="station-header">
+                    <h3 class="station-title">Станція 5: Показниковий пазл</h3>
+                    <span class="station-status status-pending" id="status5">Не пройдено</span>
+                </div>
+                <div class="task">
+                    <p>Розв'яжіть рівняння:</p>
+                    <p style="text-align: center; font-size: 1.3rem;">4<sup>x</sup> - 5·2<sup>x</sup> + 6 = 0</p>
+                    <p><strong>Завдання:</strong> Знайдіть суму коренів рівняння, округліть до сотих.</p>
+                    <div class="hint" id="hint5" style="display: none;">
+                        <strong>Підказка:</strong> Зробіть заміну t = 2<sup>x</sup>, розв'яжіть квадратне рівняння t² - 5t + 6 = 0, потім знайдіть x.
+                    </div>
+                </div>
+                <div class="answer-form">
+                    <input type="text" class="answer-input" id="answer5" placeholder="Введіть відповідь (число, наприклад 2.58)">
+                    <button class="submit-btn" onclick="checkAnswer(5)">Перевірити відповідь</button>
+                    <button class="hint-btn" onclick="toggleHint(5)" style="margin-top: 5px; padding: 8px;">Показати підказку</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="results-section">
+            <div class="results-header">
+                <h2>Фінальний ключ та результати</h2>
+                <div>Ключ успіху: <strong>складіть коди з усіх станцій</strong></div>
+            </div>
+            
+            <div class="final-key" id="final-key">
+                Ваші коди з'являться тут після проходження всіх станцій
+            </div>
+            
+            <div class="team-results">
+                <div class="team-result">
+                    <div class="team-name">Команда 1</div>
+                    <div class="team-score" id="score1">0</div>
+                    <div>Пройдено: <span id="completed1">0/5</span></div>
+                </div>
+                <div class="team-result">
+                    <div class="team-name">Команда 2</div>
+                    <div class="team-score" id="score2">0</div>
+                    <div>Пройдено: <span id="completed2">0/5</span></div>
+                </div>
+                <div class="team-result">
+                    <div class="team-name">Команда 3</div>
+                    <div class="team-score" id="score3">0</div>
+                    <div>Пройдено: <span id="completed3">0/5</span></div>
+                </div>
+                <div class="team-result">
+                    <div class="team-name">Команда 4</div>
+                    <div class="team-score" id="score4">0</div>
+                    <div>Пройдено: <span id="completed4">0/5</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="control-btn start-btn" onclick="startTimer()">Старт таймера (5 хв)</button>
+            <button class="control-btn hint-btn" onclick="showAllHints()">Показати всі підказки</button>
+            <button class="control-btn reset-btn" onclick="resetGame()">Скинути гру</button>
+        </div>
+    </div>
+    
+    <script>
+        // Глобальні змінні
+        let currentTeam = 1;
+        let timerInterval;
+        let timeLeft = 300; // 5 хвилин у секундах
+        let timerRunning = false;
+        
+        // Правильні відповіді
+        const correctAnswers = {
+            1: "2",        // Точки перегину
+            2: "5",        // Корінь логарифмічного рівняння
+            3: "0",        // Інтеграл
+            4: "9.2",      // Апофема піраміди
+            5: "2.58"      // Сума коренів показникового рівняння
+        };
+        
+        // Коди для фінального ключа
+        const stationCodes = {
+            1: "A",  // Станція 1 код
+            2: "B",  // Станція 2 код
+            3: "C",  // Станція 3 код
+            4: "D",  // Станція 4 код
+            5: "E"   // Станція 5 код
+        };
+        
+        // Бали команд
+        const teams = {
+            1: { name: "Команда 1", score: 0, completed: 0, answers: {} },
+            2: { name: "Команда 2", score: 0, completed: 0, answers: {} },
+            3: { name: "Команда 3", score: 0, completed: 0, answers: {} },
+            4: { name: "Команда 4", score: 0, completed: 0, answers: {} }
+        };
+        
+        // Функції гри
+        function selectTeam(teamNumber) {
+            currentTeam = teamNumber;
+            document.getElementById('current-team-name').textContent = `Команда ${teamNumber}`;
+            
+            // Оновлення активних кнопок
+            document.querySelectorAll('.team-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Оновлення полів вводу з відповідями команди
+            for (let i = 1; i <= 5; i++) {
+                const input = document.getElementById(`answer${i}`);
+                if (teams[teamNumber].answers[i]) {
+                    input.value = teams[teamNumber].answers[i];
+                } else {
+                    input.value = '';
+                }
+            }
+            
+            updateResults();
+        }
+        
+        function checkAnswer(stationNumber) {
+            const input = document.getElementById(`answer${stationNumber}`);
+            const answer = input.value.trim();
+            const statusElement = document.getElementById(`status${stationNumber}`);
+            
+            if (!answer) {
+                alert("Будь ласка, введіть відповідь!");
+                return;
+            }
+            
+            // Збереження відповіді для поточної команди
+            teams[currentTeam].answers[stationNumber] = answer;
+            
+            // Перевірка правильності
+            let isCorrect = false;
+            
+            // Перевірка з урахуванням варіативності введення
+            if (stationNumber === 4) {
+                // Для апофеми приймаємо 9.2, 9.17, 9.165 і т.д.
+                const numAnswer = parseFloat(answer.replace(',', '.'));
+                isCorrect = numAnswer >= 9.1 && numAnswer <= 9.3;
+            } else if (stationNumber === 5) {
+                // Для суми коренів
+                const numAnswer = parseFloat(answer.replace(',', '.'));
+                isCorrect = numAnswer >= 2.5 && numAnswer <= 2.6;
+            } else {
+                isCorrect = answer === correctAnswers[stationNumber];
+            }
+            
+            if (isCorrect) {
+                // Якщо команда ще не відповідала правильно на цю станцію
+                if (!teams[currentTeam].answers[`correct${stationNumber}`]) {
+                    teams[currentTeam].score += 10;
+                    teams[currentTeam].completed++;
+                    teams[currentTeam].answers[`correct${stationNumber}`] = true;
+                    
+                    // Позначення станції як пройденої
+                    statusElement.textContent = "Пройдено!";
+                    statusElement.className = "station-status status-completed";
+                    document.getElementById(`station${stationNumber}`).classList.add('completed');
+                    
+                    // Додаткові бали за швидкість, якщо таймер ще не закінчився
+                    if (timerRunning && timeLeft > 60) {
+                        teams[currentTeam].score += 5;
+                        alert(`Вітаю! Правильна відповідь! +10 балів за правильність +5 балів за швидкість!`);
+                    } else {
+                        alert(`Вітаю! Правильна відповідь! +10 балів!`);
+                    }
+                } else {
+                    alert("Ви вже правильно відповіли на це завдання!");
+                }
+            } else {
+                alert("Неправильна відповідь. Спробуйте ще раз або скористайтеся підказкою.");
+            }
+            
+            updateResults();
+        }
+        
+        function toggleHint(stationNumber) {
+            const hint = document.getElementById(`hint${stationNumber}`);
+            if (hint.style.display === 'none' || hint.style.display === '') {
+                hint.style.display = 'block';
+                // Знімаємо бали за використання підказки
+                teams[currentTeam].score = Math.max(0, teams[currentTeam].score - 2);
+                updateResults();
+            } else {
+                hint.style.display = 'none';
+            }
+        }
+        
+        function showAllHints() {
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById(`hint${i}`).style.display = 'block';
+            }
+            // Знімаємо бали за використання всіх підказок
+            teams[currentTeam].score = Math.max(0, teams[currentTeam].score - 5);
+            updateResults();
+        }
+        
+        function updateResults() {
+            // Оновлення рахунку команд
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`score${i}`).textContent = teams[i].score;
+                document.getElementById(`completed${i}`).textContent = `${teams[i].completed}/5`;
+            }
+            
+            // Формування фінального ключа для поточної команди
+            let finalKey = "Коди: ";
+            let allCompleted = true;
+            
+            for (let i = 1; i <= 5; i++) {
+                if (teams[currentTeam].answers[`correct${i}`]) {
+                    finalKey += `${stationCodes[i]} `;
+                } else {
+                    finalKey += "_ ";
+                    allCompleted = false;
+                }
+            }
+            
+            if (allCompleted) {
+                finalKey += ` | Фінальний ключ: ${teams[currentTeam].score}`;
+            }
+            
+            document.getElementById('final-key').textContent = finalKey;
+        }
+        
+        // Таймер
+        function startTimer() {
+            if (timerRunning) {
+                alert("Таймер уже запущено!");
+                return;
+            }
+            
+            timerRunning = true;
+            timeLeft = 300; // 5 хвилин
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                
+                document.getElementById('timer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                // Зміна кольору при закінченні часу
+                if (timeLeft <= 60) {
+                    document.getElementById('timer').style.color = '#ff4444';
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerRunning = false;
+                    alert("Час вийшов! Станція завершена.");
+                    document.getElementById('timer').style.color = '#ff4444';
+                }
+            }, 1000);
+            
+            document.getElementById('timer').style.color = '#ffcc00';
+        }
+        
+        function resetGame() {
+            if (confirm("Ви впевнені, що хочете скинути всю гру? Всі результати будуть втрачені.")) {
+                // Скидання таймера
+                clearInterval(timerInterval);
+                timerRunning = false;
+                timeLeft = 300;
+                document.getElementById('timer').textContent = "05:00";
+                document.getElementById('timer').style.color = '#ffcc00';
+                
+                // Скидання команд
+                for (let i = 1; i <= 4; i++) {
+                    teams[i] = { name: `Команда ${i}`, score: 0, completed: 0, answers: {} };
+                }
+                
+                // Скидання станцій
+                for (let i = 1; i <= 5; i++) {
+                    document.getElementById(`status${i}`).textContent = "Не пройдено";
+                    document.getElementById(`status${i}`).className = "station-status status-pending";
+                    document.getElementById(`station${i}`).classList.remove('completed');
+                    document.getElementById(`answer${i}`).value = '';
+                    document.getElementById(`hint${i}`).style.display = 'none';
+                }
+                
+                // Скидання поточної команди
+                currentTeam = 1;
+                document.getElementById('current-team-name').textContent = "Команда 1";
+                document.querySelectorAll('.team-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelector('.team-btn').classList.add('active');
+                
+                updateResults();
+            }
+        }
+        
+        // Ініціалізація при завантаженні
+        window.onload = function() {
+            updateResults();
+        };
+    </script>
+</body>
+</html>
